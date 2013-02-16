@@ -10,8 +10,8 @@
             "path":null
         },
         "dynamic":{
-            "commit_hook":"src/build/makers/mobile_spec/commit_hook.js",
-            "builder":"src/build/makers/mobile_spec",
+            "commit_hook":"src/build/projects/cordova/mobile_spec/commit_hook.js",
+            "builder":"src/build/projects/cordova/mobile_spec",
             "git":"https://git-wip-us.apache.org/repos/asf/cordova-mobile-spec.git"
         },
         "entry":"autotest/pages/all.html",

@@ -101,7 +101,7 @@ new bootstrap(app_git, app_builder).go(function() {
         queue = new q(app_builder, app_entry_point, false);
     } else {
         // static app support
-        queue = new q('./src/build/makers/static', app_entry_point, (remote_app ? app_entry_point : static));
+        queue = new q('./src/build/projects/cordova/static', app_entry_point, (remote_app ? app_entry_point : static));
     }
 
     // If there are builds specified for specific commits of libraries, queue them up
@@ -217,8 +217,8 @@ function check_n_queue(repo, commits) {
         });
     } else {
         // scan for devices for said platform
-        var platform_scanner = require('./src/build/makers/' + platform + '/devices');
-        var platform_builder = require('./src/build/makers/' + platform);
+        var platform_scanner = require('./src/build/platforms/' + platform + '/devices');
+        var platform_builder = require('./src/build/projects/cordova/' + platform);
         platform_scanner(function(err, devices) {
             if (err) console.log('[BUILD] Error scanning for ' + platform + ' devices: ' + devices);
             else {

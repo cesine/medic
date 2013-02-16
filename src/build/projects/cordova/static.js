@@ -16,8 +16,8 @@ limitations under the License.
 */
 var shell     = require('shelljs'),
     path      = require('path'),
-    libraries = require('../../../libraries'),
-    config    = require('../../../config'),
+    libraries = require('../../../../libraries'),
+    config    = require('../../../../config'),
     fs        = require('fs');
 
 var jasmineReporter = path.join(__dirname, 'static', 'jasmine-jsreporter.js');

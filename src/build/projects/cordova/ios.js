@@ -16,11 +16,11 @@ limitations under the License.
 */
 var shell        = require('shelljs'),
     path         = require('path'),
-    deploy       = require('./ios/deploy'),
-    error_writer = require('./error_writer'),
-    config       = require('../../../config'),
-    libraries    = require('../../../libraries'),
-    scan         = require('./ios/devices'),
+    libraries    = require('../../../../libraries'),
+    scan         = require('../../platforms/blackberry/devices'),
+    deploy       = require('../../platforms/blackberry/deploy'),
+    error_writer = require('../../platforms/error_writer'),
+    config       = require('../../../../config'),
     fs           = require('fs');
 
 var keychain_location = config.ios.keychainLocation;

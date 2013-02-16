@@ -17,10 +17,10 @@ limitations under the License.
 var shell        = require('shelljs'),
     path         = require('path'),
     et           = require('elementtree'),
-    scan         = require('./blackberry/devices'),
-    deploy       = require('./blackberry/deploy'),
-    error_writer = require('./error_writer'),
-    libraries    = require('../../../libraries'),
+    libraries    = require('../../../../libraries'),
+    scan         = require('../../platforms/blackberry/devices'),
+    deploy       = require('../../platforms/blackberry/deploy'),
+    error_writer = require('../../platforms/error_writer'),
     fs           = require('fs');
 
 var blackberry_lib = libraries.paths['cordova-blackberry'];

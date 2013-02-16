@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 var request       = require('request'),
-    apache_parser = require('../../../apache-gitpubsub-parser');
+    apache_parser = require('../../../../apache-gitpubsub-parser');
 
 var apache_url = "http://urd.zones.apache.org:2069/json";
 
