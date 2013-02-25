@@ -16,7 +16,7 @@ limitations under the License.
 */
 var path             = require('path'),
     fs               = require('fs'),
-    libraries        = require('../../libraries'),
+    libraries        = require('./projects/cordova/libraries'),
     android_build    = require('./projects/cordova/android'),
     ios_build        = require('./projects/cordova/ios'),
     blackberry_build = require('./projects/cordova/blackberry');

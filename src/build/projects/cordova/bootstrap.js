@@ -19,7 +19,7 @@ var shell = require('shelljs'),
     path  = require('path'),
     libs  = require('./libraries');
 
-var libDir = path.join(__dirname, 'lib');
+var libDir = path.join(__dirname, '..', '..', '..', '..', 'lib');
 shell.mkdir('-p', libDir);
 shell.rm('-rf', path.join(libDir, 'test'));
 

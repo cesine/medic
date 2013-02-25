@@ -15,7 +15,7 @@ limitations under the License.
 */
 // simple stream object to handle apache gitpubsub json events
 var Stream    = require('stream').Stream,
-    libraries = require('../libraries');
+    libraries = require('./libraries');
 
 module.exports = function apache_gitpubsub_parser(callback) {
     var s = new Stream();

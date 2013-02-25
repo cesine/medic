@@ -16,7 +16,7 @@ limitations under the License.
 */
 var shell        = require('shelljs'),
     path         = require('path'),
-    libraries    = require('../../../../libraries'),
+    libraries    = require('./libraries'),
     scan         = require('../../platforms/blackberry/devices'),
     deploy       = require('../../platforms/blackberry/deploy'),
     error_writer = require('../../platforms/error_writer'),

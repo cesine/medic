@@ -17,7 +17,7 @@ limitations under the License.
 var shell        = require('shelljs'),
     path         = require('path'),
     et           = require('elementtree'),
-    libraries    = require('../../../../libraries'),
+    libraries    = require('./libraries'),
     scan         = require('../../platforms/blackberry/devices'),
     deploy       = require('../../platforms/blackberry/deploy'),
     error_writer = require('../../platforms/error_writer'),
