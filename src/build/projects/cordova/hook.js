@@ -33,8 +33,6 @@ var head_platforms = platforms.filter(function(p) {
 
 module.exports = function(callback) {
 
-    console.log('hi');
-
     var gitpubsub = request.get(apache_url);
 
 

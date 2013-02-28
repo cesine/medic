@@ -16,18 +16,20 @@ limitations under the License.
 */
 var path             = require('path'),
     fs               = require('fs'),
-    libraries        = require('./projects/cordova/libraries'),
-    android_build    = require('./projects/cordova/android'),
-    ios_build        = require('./projects/cordova/ios'),
-    blackberry_build = require('./projects/cordova/blackberry');
+    libraries        = require('./libraries'),
+    android_build    = require('./android'),
+    ios_build        = require('./ios'),
+    blackberry_build = require('./blackberry');
 
 var builders = {
     'cordova-android':android_build,
     'cordova-ios':ios_build,
     'cordova-blackberry':blackberry_build
 };
+var tempDir = path.join(__dirname, '..', '..', '..', '..', 'temp');
 
 function build_the_queue(q, callback) {
+    console.log('build the queue');
     var job = q.shift();
     if (job) {
         job.builder(job.output_location, job.sha, job.devices, job.entry, function(err) {
@@ -38,22 +40,6 @@ function build_the_queue(q, callback) {
 }
 
 module.exports = function(app_builder, app_entry_point, static) {
-    builders['test'] = require(path.join('..','..',app_builder));
-    if (static) {
-        builders['test'](libraries.output.test, static, null, null, app_entry_point, function(err) {
-            if (err) {
-                throw new Error('Could not copy test app over!');
-            }
-            console.log('[MEDIC] Test app built + ready.');
-        });
-    } else {
-        builders['test'](libraries.output.test, 'HEAD', null, app_entry_point, function(err) {
-            if (err) {
-                throw new Error('Could not build Test App! Aborting!');
-            }
-            console.log('[MEDIC] Test app built + ready.');
-        });
-    }
 
     return function builder(commits, callback) {
         // commits format:
@@ -64,6 +50,24 @@ module.exports = function(app_builder, app_entry_point, static) {
         //     devices:[]
         //   }
         // }
+
+        builders[app_builder] = require('./' + app_builder);
+        if (static) {
+            builders[app_builder](path.join(tempDir, 'test'), static, null, null, app_entry_point, function(err) {
+                if (err) {
+                    throw new Error('Could not copy test app over!');
+                }
+                console.log('[MEDIC] Test app built + ready.');
+            });
+        } else {
+            builders[app_builder](path.join(tempDir, 'test'), 'HEAD', null, app_entry_point, function(err) {
+                if (err) {
+                    throw new Error('Could not build Test App! Aborting!');
+                }
+                console.log('[MEDIC] Test app built + ready.');
+            });
+        }
+
         var miniq = [];
         for (var lib in commits) if (commits.hasOwnProperty(lib)) {
             if (builders.hasOwnProperty(lib)) {

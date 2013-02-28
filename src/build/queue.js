@@ -59,7 +59,9 @@ q.prototype.build = function() {
         //   }
         // }
         updater(job, function() {
-            builder(job, function() {
+            var lib = null;
+            for (var p in job) if (job.hasOwnProperty(p)) lib = p;
+            job[lib].builder(job, function() {
                 console.log('[BUILDER] [' + self.name + '] Job complete. (' + self.q.length + ' jobs remaining in queue)');
                 self.building = false;
                 self.build();

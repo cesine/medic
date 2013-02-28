@@ -9,8 +9,7 @@ var path          = require('path'),
     n             = require('ncallbacks'),
     bootstrap     = require('./bootstrap'),
     argv          = require('optimist').argv,
-    updater       = require('../../updater'),
-    q             = require('../../queue');
+    updater       = require('../../updater');
 
 function log(err) {
     if (err) {
@@ -21,8 +20,6 @@ function log(err) {
         process.exit(0);
     }
 }
-
-var queue;
 
 // should we even bother building certain platforms
 var should_build = {
@@ -76,8 +73,8 @@ var frozen_platforms = platforms.filter(function(p) {
 var initQueue = [];
 
 // bootstrap makes sure we have the libraries cloned down locally and can query them for commit SHAs and dates
-module.exports = function(callback) {
-    new bootstrap(app_git, app_builder).go(function() {
+module.exports = function(config, callback) {
+    new bootstrap(config).go(function() {
 
         // If there are builds specified for specific commits of libraries, queue them up
         if (frozen_platforms.length > 0) {
@@ -90,7 +87,7 @@ module.exports = function(callback) {
                 job['cordova-' + platform] = {
                     "sha":sha
                 }
-                queue.push(job);
+                initQueue.push(job);
             });
             console.log('[MEDIC] Frozen build queued.');
         }
@@ -103,7 +100,7 @@ module.exports = function(callback) {
                     job[platform] = {
                         "sha":"HEAD"
                     }
-                    queue.push(job);
+                    initQueue.push(job);
                 }
             });
         } else {
@@ -125,7 +122,7 @@ module.exports = function(callback) {
                     hook(function(sha) {
                         // On new commits to test project, make sure we build it.
                         // TODO: once test project is created, we should also queue it for relevant platforms
-                        queue.push({
+                        initQueue.push({
                             'test':sha
                         });
                     });

@@ -23,7 +23,7 @@ var shell        = require('shelljs'),
     deploy       = require('../../platforms/android/deploy'),
     fs           = require('fs');
 
-var android_lib = libraries.paths['cordova-android'];
+var android_lib = path.join(__dirname, '..', '..', '..', '..', 'lib', 'cordova-android');
 var create = path.join(android_lib, 'bin', 'create');
 
 module.exports = function(output, sha, devices, entry_point, callback) {
@@ -54,7 +54,7 @@ module.exports = function(output, sha, devices, entry_point, callback) {
                         if (!fs.existsSync(output)) {
                             throw new Error('./bin/create must have failed as output path does not exist.');
                         }
-                        shell.cp('-Rf', path.join(libraries.output.test, '*'), path.join(output, 'assets', 'www'));
+                        shell.cp('-Rf', path.join(__dirname, '..', '..', '..', '..', 'temp', 'test', '*'), path.join(output, 'assets', 'www'));
                         
                         // add the sha to the junit reporter
                         var tempJasmine = path.join(output, 'assets', 'www', 'jasmine-jsreporter.js');

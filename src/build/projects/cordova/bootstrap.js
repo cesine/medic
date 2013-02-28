@@ -27,7 +27,7 @@ var contents = fs.readdirSync(libDir);
 
 var command_queue = [];
 
-for (var repo in libs.paths) if (libs.paths.hasOwnProperty(repo) && repo != 'test') (function(lib) {
+for (var repo in libs.paths) if (libs.paths.hasOwnProperty(repo) /* && repo != 'test'*/) (function(lib) {
     if (contents.indexOf(lib) == -1) {
         // Don't have the lib, get it.
         var cmd = 'git clone https://git-wip-us.apache.org/repos/asf/' + lib + '.git ' + path.join(libDir, lib);
@@ -56,15 +56,18 @@ function go(q, builder, cb) {
     }
 }
 
-function bootstrap(url, builder) {
-    this.test_builder = builder;
-    if (url) {
-        var test_path = path.join(libDir, 'test');
+function bootstrap(config) {
+    this.config = config;
+
+    for (var i in config.apps) {
+        var name = config.apps[i].name;
+        var git_url = config.apps[i].git;
+        var test_path = path.join(libDir, name);
         var cmd;
         if (fs.existsSync(test_path)) {
             cmd = 'cd ' + test_path + ' && git checkout -- . && git pull origin master';
         } else {
-            cmd = 'git clone ' + url + ' ' + test_path;
+            cmd = 'git clone ' + git_url + ' ' + test_path;
         }
         command_queue.push(cmd);
     }

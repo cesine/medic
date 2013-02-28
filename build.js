@@ -45,10 +45,11 @@ for (var i in config.builders) {
 
     var main = require('./src/build/projects/' + name + '/build');
 
-
-    main(function() {
-        hook(function(jobs) {
-            queue.push(jobs);
+    main(config.builders[i], function() {
+        hook(function(job) {
+            for (var i in job) if (job.hasOwnProperty(i)) job[i].builder = require('./src/build/projects/' + name + '/builder')('mobile_spec', "autotest/pages/all.html");
+            //job.builder = require('./src/build/projects/' + name + '/builder')('mobile_spec');
+            queue.push(job);
         });
     });
 
