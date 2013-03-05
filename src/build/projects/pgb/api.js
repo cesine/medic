@@ -36,6 +36,7 @@ var PGB = {
                 file: zip_path
             }
         };
+        PGB.output_path = output_path;
 
         PGB.api.post('/apps', options, function(e, data) {
             if (e) {

@@ -2,7 +2,6 @@ var shell        = require('shelljs'),
     path         = require('path'),
     n            = require('ncallbacks'),
     error_writer = require('../../platforms/error_writer'),
-    libraries    = require('../../../../libraries'),
     fs           = require('fs');
 
 module.exports = function(output, sha, devices, entry_point, callback) {
@@ -14,16 +13,10 @@ module.exports = function(output, sha, devices, entry_point, callback) {
         console.log('[' + platform + '] ' + msg + ' (sha: ' + sha.substr(0,7) + ')');
     }
 
-    shell.rm('-rf', output);
-
     // create an app into output dir
-    log('Creating project. ' + output);
+    log('Modifying app in ' + output);
     try {
 
-        // make output dir
-        fs.mkdirSync(output);
-        // copy over mobile spec modified html assets
-        shell.cp('-Rf', path.join(libraries.output.test, '*'), output);
 
         fs.writeFileSync(path.join(output, 'index.html'), '<html><body onload="window.location.href=\'autotest/pages/all.html\'"></body><html>');
 
@@ -34,7 +27,7 @@ module.exports = function(output, sha, devices, entry_point, callback) {
         }
 
     } catch (e) {
-        error_writer(platform, sha, 'Exception thrown modifying mobile spec application.', e.message);
+        error_writer(platform, sha, 'Exception thrown modifying test application.', e.message);
         callback(true);
         return;
     }
@@ -44,7 +37,8 @@ module.exports = function(output, sha, devices, entry_point, callback) {
     log('Compiling...');
 
     var pgb = require('./api');
-    var zip_path = path.join(output, '..', 'www.zip');
+    var output_dir = path.join(output, '..');
+    var zip_path = path.join(output_dir, 'www.zip');
     var cmd = 'cd ' + output + ' && zip -r ' + zip_path + ' ./*';
 
     shell.exec(cmd, {silent:true, async:true}, function(code, checkout_output) {
@@ -65,7 +59,7 @@ module.exports = function(output, sha, devices, entry_point, callback) {
         }
 
         pgb.auth(function() {
-            pgb.build(zip_path, output);
+            pgb.build(zip_path, output_dir);
         });
     });
 

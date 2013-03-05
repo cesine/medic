@@ -1,6 +1,5 @@
 var shell     = require('shelljs'),
     path      = require('path'),
-    libraries = require('../../../../libraries'),
     config    = require('../../../../config'),
     fs        = require('fs');
 
@@ -10,16 +9,33 @@ module.exports = function(output_location, sha, devices, entry_point, callback) 
     shell.rm('-Rf', output_location);
     shell.mkdir('-p', output_location);
     var tempAll = path.join(output_location, 'autotest', 'pages', 'all.html');
+    var libDir = path.join(__dirname, '..', '..', '..', '..', 'lib');
+    var lib = 'mobile-spec';
+
+    var contents = [];
+    if (fs.existsSync(libDir))
+        contents = fs.readdirSync(libDir);
+
+    var cmd = null;
+    if (contents.indexOf(lib) == -1) {
+        // Don't have the lib, get it.
+        cmd = 'git clone https://git-wip-us.apache.org/repos/asf/cordova-mobile-spec.git ' + path.join(libDir, lib);
+    } else {
+        // Have the lib, update it.
+        cmd = 'cd ' + path.join(libDir, lib) + ' && git checkout -- . && git pull origin master';
+    }
 
     // checkout correct sha
-    var cmd = 'cd ' + libraries.paths.test + ' && git checkout ' + sha;
+    if (sha)
+        cmd += ' && git checkout ' + sha;
+
     shell.exec(cmd, {silent:true, async:true}, function(code, output) {
         if (code > 0) {
             console.error('[ERROR] [BUILDER] [TEST APP] Error during git-checkout of test app SHA! command executed was: ' + cmd + ', output: ' + output);
             callback(true);
         } else {
             // copy relevant bits of mobile-spec project to output_location location
-            shell.cp('-Rf', [path.join(libraries.paths.test, 'autotest'), path.join(libraries.paths.test, 'cordova.js'), path.join(libraries.paths.test, 'master.css'), path.join(libraries.paths.test, 'main.js')], output_location);
+            shell.cp('-Rf', [path.join(libDir, lib, 'autotest'), path.join(libDir, lib, 'cordova.js'), path.join(libDir, lib, 'master.css'), path.join(libDir, lib, 'main.js')], output_location);
 
             // copy jasmine reporter into output_location location
             shell.cp('-Rf', jasmineReporter, output_location);
