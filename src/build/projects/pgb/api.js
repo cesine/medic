@@ -60,7 +60,7 @@ var PGB = {
                 PGB.log('Build complete.');
                 PGB.download(id, 'android');
             } else {
-                PGB.log(data.status.android);
+                PGB.log(data.error.android);
             }
         });
     },

@@ -1,13 +1,30 @@
 var n 	      = require('ncallbacks'),
     couch     = require('../../../couchdb/interface');
 
+var platforms = ['ios', 'android', 'blackberry'];
 
 module.exports = function(callback) {
-	var platform = 'android';
-	var repo = 'cordova-android';
+
+    for (var i in platforms) {
+        check_n_queue(platforms[i], callback);
+    }
+
+    setInterval(function() {
+
+        for (var i in platforms) {
+            check_n_queue(platforms[i], callback);
+        }
+
+    }, 120000);
+
+};
+
+function check_n_queue(platform, callback) {
+	var repo = 'cordova-' + platform;
+
     // scan for devices for said platform
     var platform_scanner = require('../../platforms/' + platform + '/devices');
-    var platform_builder = require('../../projects/cordova/' + platform);
+
     platform_scanner(function(err, devices) {
         if (err) console.log('[BUILD] Error scanning for ' + platform + ' devices: ' + devices);
         else {

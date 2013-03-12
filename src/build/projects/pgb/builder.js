@@ -63,7 +63,7 @@ module.exports = function(app_builder, app_entry_point, static) {
                 if (err) {
                     throw new Error('Could not copy test app over!');
                 }
-                console.log('[MEDIC] Test app built + ready.');
+                console.log('[MEDIC] [PGB] Test app built + ready.');
                 createJob(commits, app_entry_point, callback);
             });
         } else {
@@ -71,7 +71,7 @@ module.exports = function(app_builder, app_entry_point, static) {
                 if (err) {
                     throw new Error('Could not build Test App! Aborting!');
                 }
-                console.log('[MEDIC] Test app built + ready.');
+                console.log('[MEDIC] [PGB] Test app built + ready.');
                 createJob(commits, app_entry_point, callback);
             });
         }

@@ -29,7 +29,6 @@ var builders = {
 var tempDir = path.join(__dirname, '..', '..', '..', '..', 'temp');
 
 function build_the_queue(q, callback) {
-    console.log('build the queue');
     var job = q.shift();
     if (job) {
         job.builder(job.output_location, job.sha, job.devices, job.entry, function(err) {
@@ -57,14 +56,14 @@ module.exports = function(app_builder, app_entry_point, static) {
                 if (err) {
                     throw new Error('Could not copy test app over!');
                 }
-                console.log('[MEDIC] Test app built + ready.');
+                console.log('[MEDIC] [CORDOVA] Test app built + ready.');
             });
         } else {
             builders[app_builder](path.join(tempDir, 'test'), 'HEAD', null, app_entry_point, function(err) {
                 if (err) {
                     throw new Error('Could not build Test App! Aborting!');
                 }
-                console.log('[MEDIC] Test app built + ready.');
+                console.log('[MEDIC] [CORDOVA] Test app built + ready.');
             });
         }
 
