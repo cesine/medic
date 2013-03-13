@@ -20,37 +20,36 @@ var path          = require('path'),
     q             = require('./src/build/queue');
 
 // Clean out temp directory, where we keep our generated apps
-var libDir = path.join(__dirname, 'lib');
 var temp = path.join(__dirname, 'temp');
 shell.rm('-rf', temp);
 shell.mkdir(temp);
 
-function log(err) {
-    if (err) {
-        console.error(err);
-        process.exit(1);
-    } else {
-        console.log('Usage:');
-        process.exit(0);
-    }
-}
 
 var queue = new q();
 
-for (var i in config.builders) {
+function go(maker) {
+    var name = maker.name;
 
-    var name = config.builders[i].name;
+    console.log('[MEDIC] Running maker ' + name);
 
-    var hook = require('./src/build/projects/' + name + '/hook');
-
+    // main initializes the builder, updating build tools
     var main = require('./src/build/projects/' + name + '/build');
 
-    main(config.builders[i], function() {
+    // the hook detects updates to repos and triggers medic to run specs
+    var hook = require('./src/build/projects/' + name + '/hook');
+
+    main(config.makers[i], function() {
         hook(function(job) {
-            for (var i in job) if (job.hasOwnProperty(i)) job[i].builder = require('./src/build/projects/' + name + '/builder')('mobile_spec', "autotest/pages/all.html");
+            for (var i in job) {
+                if (job.hasOwnProperty(i)) 
+                    job[i].builder = require('./src/build/projects/' + name + '/builder')('mobile_spec', "autotest/pages/all.html");
+            }
             //job.builder = require('./src/build/projects/' + name + '/builder')('mobile_spec');
             queue.push(job);
         });
     });
 
 }
+
+for (var i in config.makers) go(config.makers[i]);
+
