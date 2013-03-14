@@ -24,14 +24,14 @@ var PGB = {
         });
     },
 
-    build: function(zip_path, output_path) {
+    build: function(platform, zip_path, output_path) {
         var options = {
             form: {
                 data: {
                     title: 'cordovaExample',
                     create_method: 'file',
-                    package: 'com.nitobi.mobspec'
-                    //keys: { ios: { id: 20088, password: "" }}
+                    package: 'com.nitobi.mobspec',
+                    keys: ( platform == 'ios' ? { ios: 42105 } : null )
                 },
                 file: zip_path
             }
@@ -41,26 +41,27 @@ var PGB = {
         PGB.api.post('/apps', options, function(e, data) {
             if (e) {
                 PGB.log(e);
-                PGB.oncomplete(e);
             } else {
-                PGB.log('App created.');
-                PGB.log('Waiting for build...');
-                PGB.poll(data.id);
+                PGB.log('App ' + data.id + ' created.');
+                PGB.log('Waiting for ' + platform + ' build...');
+                PGB.poll(data.id, platform);
             }
         });
     },
 
-    poll: function(id) {
+    poll: function(id, platform) {
         PGB.checkStatus(id, function(e, data) {
-            if (data.status.android == 'pending') {
+            if (data.status[platform] == 'pending') {
                 setTimeout(function() {
-                    PGB.poll(id);
+                    PGB.poll(id, platform);
                 }, 2000);
-            } else if (data.status.android == 'complete' ) {
-                PGB.log('Build complete.');
-                PGB.download(id, 'android');
+            } else if (data.status[platform] == 'complete' ) {
+                PGB.log(platform + ' build complete.');
+                PGB.download(id, platform);
             } else {
-                PGB.log(data.error.android);
+                console.log(data);
+                console.log(data.error)
+                PGB.log(data.error[platform]);
             }
         });
     },
@@ -70,8 +71,8 @@ var PGB = {
     },
 
     download: function(id, platform) {
-        PGB.log('Downloading...');
-        var binpath = path.join(PGB.output_path, 'app-' + id + '.apk');
+        PGB.log('Downloading for ' + platform + '...');
+        var binpath = path.join(PGB.output_path, 'app-' + id + '.' + PGB.extension(platform));
 
         var r = PGB.api.get('/apps/' + id + '/' + platform).pipe(fs.createWriteStream(binpath));
         r.on('close', function() {
@@ -82,11 +83,20 @@ var PGB = {
                     PGB.log(e);
                 } else {
                     PGB.log('App deleted from Build.');
-                    PGB.oncomplete(id, 'android', binpath);
+                    PGB.oncomplete(id, platform, binpath);
                 }
             });
         });
+    },
 
+    extension: function(platform) {
+        if (platform == 'android') {
+            return 'apk';
+        } else if (platform == 'ios') {
+            return 'ipa';
+        } else if (platform == 'blackberry') {
+            return 'jad';
+        }
     }
 };
 

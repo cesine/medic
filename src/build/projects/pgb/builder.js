@@ -1,13 +1,11 @@
 var path             = require('path'),
     fs               = require('fs'),
-    android_build    = require('./android'),
-    ios_build        = require('./ios'),
-    blackberry_build = require('./blackberry');
+    pgbuild          = require('./pgbuild');
 
 var builders = {
-    'cordova-android':android_build,
-    'cordova-ios':ios_build,
-    'cordova-blackberry':blackberry_build
+    'cordova-android':pgbuild('android'),
+    'cordova-ios':pgbuild('ios'),
+    'cordova-blackberry':pgbuild('blackberry')
 };
 var tempDir = path.join(__dirname, '..', '..', '..', '..', 'temp');
 
@@ -22,6 +20,7 @@ function build_the_queue(q, callback) {
 }
 
 function createJob(commits, app_entry_point, callback) {
+    console.log(commits);
     var miniq = [];
     for (var lib in commits) if (commits.hasOwnProperty(lib)) {
         if (builders.hasOwnProperty(lib)) {
