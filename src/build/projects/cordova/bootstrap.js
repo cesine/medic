@@ -57,11 +57,11 @@ function go(q, builder, cb) {
 }
 
 function bootstrap(config) {
+    if (!config) return;
     this.config = config;
-
-    for (var i in config.apps) {
-        var name = config.apps[i].name;
-        var git_url = config.apps[i].git;
+    for (var i in config.specs) {
+        var name = config.specs[i].name;
+        var git_url = config.specs[i].git;
         var test_path = path.join(libDir, name);
         var cmd;
         if (fs.existsSync(test_path)) {
