@@ -21,7 +21,6 @@ module.exports = function(callback) {
 
 function check_n_queue(platform, callback) {
 	var repo = 'cordova-' + platform;
-
     // scan for devices for said platform
     var platform_scanner = require('../../platforms/' + platform + '/devices');
 
@@ -31,39 +30,34 @@ function check_n_queue(platform, callback) {
             var numDs = 0;
             for (var d in devices) if (devices.hasOwnProperty(d)) numDs++;
             if (numDs > 0) {
-                //commits.forEach(function(commit) {
-                	var commit = 'HEAD';
-                    var job = {};
-                    var targets = 0;
-                    job[repo] = {
-                        sha:commit,
-                        numDevices:0,
-                        devices:{}
-                    };
-                    var end = n(numDs, function() {
-                        if (targets > 0) {
-                            job[repo].numDevices = targets;
-                            callback(job);
-                        }
-                    });
-                    for (var d in devices) if (devices.hasOwnProperty(d)) (function(id) {
-                        var device = devices[id];
-                        var version = device.version;
-                        var model = device.model;
-                        var couch_id = platform + '__' + commit + '__' + version + '__' + model;
-                        couch.mobilespec_results.get(couch_id, function(err, res_doc) {
-                            if (err && res_doc == 404) {
-                                // Don't have results for this device!
-                                targets++;
-                                job[repo].devices[id] = {
-                                    version:version,
-                                    model:model
-                                }; 
-                            }
-                            end();
-                        });
-                    }(d));
-                //});
+            	var commit = 'HEAD';
+                var job = {};
+                var targets = 0;
+                job[repo] = {
+                    sha:commit,
+                    numDevices:0,
+                    devices:{}
+                };
+
+                var end = n(numDs, function() {
+                    if (targets > 0) {
+                        job[repo].numDevices = targets;
+                        callback(job);
+                    }
+                });
+
+                for (var d in devices) if (devices.hasOwnProperty(d)) (function(id) {
+                    var device = devices[id];
+                    var version = device.version;
+                    var model = device.model;
+
+                    targets++;
+                    job[repo].devices[id] = {
+                        version:version,
+                        model:model
+                    }; 
+                    end();
+                }(d));
             }
         }
     });

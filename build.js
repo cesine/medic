@@ -44,7 +44,6 @@ function go(maker) {
                 if (job.hasOwnProperty(i)) 
                     job[i].builder = require('./src/build/projects/' + name + '/builder')('mobile_spec', "autotest/pages/all.html");
             }
-            //job.builder = require('./src/build/projects/' + name + '/builder')('mobile_spec');
             queue.push(job);
         });
     });

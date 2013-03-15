@@ -20,7 +20,6 @@ function build_the_queue(q, callback) {
 }
 
 function createJob(commits, app_entry_point, callback) {
-    console.log(commits);
     var miniq = [];
     for (var lib in commits) if (commits.hasOwnProperty(lib)) {
         if (builders.hasOwnProperty(lib)) {
@@ -57,22 +56,13 @@ module.exports = function(app_builder, app_entry_point, static) {
         // }
 
         builders[app_builder] = require('./' + app_builder);
-        if (static) {
-            builders[app_builder](path.join(tempDir, 'test'), static, null, null, app_entry_point, function(err) {
-                if (err) {
-                    throw new Error('Could not copy test app over!');
-                }
-                console.log('[MEDIC] [PGB] Test app built + ready.');
-                createJob(commits, app_entry_point, callback);
-            });
-        } else {
-            builders[app_builder](path.join(tempDir, 'test'), 'HEAD', null, app_entry_point, function(err) {
-                if (err) {
-                    throw new Error('Could not build Test App! Aborting!');
-                }
-                console.log('[MEDIC] [PGB] Test app built + ready.');
-                createJob(commits, app_entry_point, callback);
-            });
-        }
+
+        builders[app_builder](path.join(tempDir, 'test'), null, null, app_entry_point, function(err) {
+            if (err) {
+                throw new Error('Could not build Test App! Aborting!');
+            }
+            console.log('[MEDIC] [PGB] Test app built + ready.');
+            createJob(commits, app_entry_point, callback);
+        });
     }
 };
