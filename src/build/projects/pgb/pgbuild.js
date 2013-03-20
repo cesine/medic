@@ -16,9 +16,9 @@ module.exports = function(platform) {
         // create an app into output dir
         log('Modifying app in ' + output);
         try {
-
-
-            fs.writeFileSync(path.join(output, 'index.html'), '<html><body onload="window.location.href=\'autotest/pages/all.html\'"></body><html>');
+            if (entry_point) {
+                fs.writeFileSync(path.join(output, 'index.html'), '<html><body onload="window.location.href=\'' + entry_point + '\'"></body><html>');
+            }
 
             // add the sha to the junit reporter
             var tempJasmine = path.join(output, 'jasmine-jsreporter.js');
@@ -32,7 +32,6 @@ module.exports = function(platform) {
             return;
         }
 
-
         // compile
         log('Compiling for ' + platform + '...');
 
@@ -43,11 +42,17 @@ module.exports = function(platform) {
 
         shell.exec(cmd, {silent:true, async:true}, function(code, checkout_output) {
 
-            pgb.oncomplete = function(id, pf, binpath) {
+            pgb.oncomplete = function(error, id, pf, binpath) {
+
+                if (error) {
+                    console.log('[PGB] Buid failed (' + error + ')');
+                    callback(error);
+                    return;
+                }
 
                 var platform_scanner = require('../../platforms/' + pf + '/devices');
 
-                console.log('[BUILD] Scanning for ' + pf + ' devices')
+                console.log('[PGB][BUILD] Scanning for ' + pf + ' devices')
                 platform_scanner(function(err, devices) {
                     if (err) console.log('[BUILD] Error scanning for ' + pf + ' devices: ' + devices);
                     else {

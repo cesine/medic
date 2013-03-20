@@ -59,9 +59,8 @@ var PGB = {
                 PGB.log(platform + ' build complete.');
                 PGB.download(id, platform);
             } else {
-                console.log(data);
-                console.log(data.error)
                 PGB.log(data.error[platform]);
+                PGB.oncomplete(data.error[platform]);
             }
         });
     },
@@ -83,7 +82,7 @@ var PGB = {
                     PGB.log(e);
                 } else {
                     PGB.log('App deleted from Build.');
-                    PGB.oncomplete(id, platform, binpath);
+                    PGB.oncomplete(null, id, platform, binpath);
                 }
             });
         });
