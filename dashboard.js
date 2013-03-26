@@ -22,7 +22,7 @@ var http                   = require('http'),
     config                 = require('./config'),
     templates              = require('./src/dashboard/templates'),
     api                    = require('./src/dashboard/api'),
-    bootstrap              = require('./src/build/projects/cordova/bootstrap');
+    bootstrap              = require('./src/build/makers/cordova/bootstrap');
 
 var boot_start = new Date().getTime();
 

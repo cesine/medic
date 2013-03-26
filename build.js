@@ -33,10 +33,10 @@ function go(maker) {
     console.log('[MEDIC] Running maker ' + name);
 
     // main initializes the builder, updating build tools
-    var main = require('./src/build/projects/' + name + '/build');
+    var main = require('./src/build/makers/' + name + '/build');
 
     // the hook detects updates to repos and triggers medic to run specs
-    var hook = require('./src/build/projects/' + name + '/hook');
+    var hook = require('./src/build/makers/' + name + '/hook');
 
     main(maker, function() {
         hook(function(job) {
@@ -44,7 +44,7 @@ function go(maker) {
                 if (job.hasOwnProperty(i)) {
                     var spec = job[i].spec ? job[i].spec.name : default_spec;
                     var entry = job[i].spec ? job[i].spec.entry : config.app.entry;
-                    job[i].builder = require('./src/build/projects/' + name + '/builder')(spec, entry);
+                    job[i].builder = require('./src/build/makers/' + name + '/builder')(spec, entry);
                     queue.push(job);
                 }
             }

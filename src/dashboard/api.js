@@ -14,13 +14,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-var libraries     = require('../build/projects/cordova/libraries'),
+var libraries     = require('../build/makers/cordova/libraries'),
     n             = require('ncallbacks'),
     templates     = require('./templates'),
     commits       = require('../build/commit_list'),
     updater       = require('../build/updater'),
     request       = require('request'),
-    apache_parser = require('../build/projects/cordova/apache-gitpubsub-parser'),
+    apache_parser = require('../build/makers/cordova/apache-gitpubsub-parser'),
     couch         = require('../couchdb/interface');
 
 function query_for_results(platform, shas, callback) {

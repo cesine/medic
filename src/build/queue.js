@@ -17,7 +17,7 @@ limitations under the License.
 var events    = require('events'),
     updater   = require('./updater'),
     builder,
-    libraries = require('./projects/cordova/libraries');
+    libraries = require('./makers/cordova/libraries');
 
 var q = function(name) {
     this.q = [];

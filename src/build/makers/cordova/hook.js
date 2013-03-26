@@ -91,7 +91,7 @@ function check_n_queue(repo, commits, callback) {
     } else {
         // scan for devices for said platform
         var platform_scanner = require('../../platforms/' + platform + '/devices');
-        var platform_builder = require('../../projects/cordova/' + platform);
+        var platform_builder = require('../../makers/cordova/' + platform);
         platform_scanner(function(err, devices) {
             if (err) console.log('[BUILD] Error scanning for ' + platform + ' devices: ' + devices);
             else {

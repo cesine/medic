@@ -11,7 +11,7 @@
         },
         "dynamic":{
             "commit_hook":"./mobile_spec/commit_hook.js",
-            "builder":"src/build/projects/cordova/mobile_spec",
+            "builder":"src/build/makers/cordova/mobile_spec",
             "git":"https://git-wip-us.apache.org/repos/asf/cordova-mobile-spec.git"
         },
         "entry":"autotest/pages/all.html",
