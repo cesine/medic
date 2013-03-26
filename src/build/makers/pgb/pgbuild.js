@@ -1,7 +1,7 @@
 var shell        = require('shelljs'),
     path         = require('path');
 
-var package_id = "com.honegap.hydratest";
+var package_id = "com.phonegap.hydratest";
 
 module.exports = function(platform) {
     return function(output, sha, devices, entry_point, callback) {

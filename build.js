@@ -43,8 +43,9 @@ function go(maker) {
             for (var i in job) {
                 if (job.hasOwnProperty(i)) {
                     var spec = job[i].spec ? job[i].spec.name : default_spec;
+                    var git_url = job[i].spec ? job[i].spec.git : null;
                     var entry = job[i].spec ? job[i].spec.entry : config.app.entry;
-                    job[i].builder = require('./src/build/makers/' + name + '/builder')(spec, entry);
+                    job[i].builder = require('./src/build/makers/' + name + '/builder')(spec, entry, false, git_url);
                     queue.push(job);
                 }
             }

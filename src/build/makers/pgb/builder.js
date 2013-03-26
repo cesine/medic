@@ -41,7 +41,7 @@ function createJob(commits, app_entry_point, stamp, callback) {
     build_the_queue(miniq, callback);
 }
 
-module.exports = function(app_builder, app_entry_point, static) {
+module.exports = function(app_builder, app_entry_point, static, app_git) {
 
     return function builder(commits, callback) {
         // commits format:
@@ -54,10 +54,13 @@ module.exports = function(app_builder, app_entry_point, static) {
         // }
 
         var stamp = (new Date()).toJSON().substring(0,19).replace(/:/g, "-");
+        try {
+            spec_builder = require('./' + app_builder);
+        } catch (ex) {
+            spec_builder = require('./plugin_spec');
+        }
 
-        spec_builder = require('./' + app_builder);
-
-        spec_builder(path.join(tempDir, 'test'), stamp, null, app_entry_point, function(err) {
+        spec_builder(path.join(tempDir, 'test'), stamp, app_builder, app_entry_point, app_git, function(err) {
             if (err) {
                 throw new Error('Could not build Test App! Aborting!');
             }

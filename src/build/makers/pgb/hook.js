@@ -18,7 +18,7 @@ module.exports = function(callback, config) {
 
     runAll();
     
-    setInterval(runAll, 120000);
+    setInterval(runAll, 300000);
 
 };
 

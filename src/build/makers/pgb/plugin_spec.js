@@ -5,15 +5,15 @@ var shell     = require('shelljs'),
 
 var jasmineReporter = path.join(__dirname, 'mobile_spec', 'jasmine-jsreporter.js');
 
-module.exports = function(output_location, sha, devices, entry_point, callback) {
+module.exports = function(output_location, sha, name, entry_point, app_git, callback) {
 
-    console.log('[PGB] Preparing barcode scanner spec');
+    console.log('[PGB] Preparing plugin spec: ' + name);
 
     shell.rm('-Rf', output_location);
     shell.mkdir('-p', output_location);
     var tempStart = path.join(output_location, 'index.html');
     var libDir = path.join(__dirname, '..', '..', '..', '..', 'lib');
-    var lib = 'barcodescanner-spec';
+    var lib = name;
 
     var contents = [];
     if (fs.existsSync(libDir))
@@ -22,7 +22,7 @@ module.exports = function(output_location, sha, devices, entry_point, callback) 
     var cmd = null;
     if (contents.indexOf(lib) == -1) {
         // Don't have the lib, get it.
-        cmd = 'git clone https://github.com/wildabeast/BarcodeScanner.git ' + path.join(libDir, lib) + ' && git fetch && get checkout specs';
+        cmd = 'git clone ' + app_git + ' ' + path.join(libDir, lib) + ' && cd ' + path.join(libDir, lib) + ' && git fetch && git checkout specs';
     } else {
         // Have the lib, update it.
         cmd = 'cd ' + path.join(libDir, lib) + ' && git checkout -- . && git pull origin specs';
@@ -40,7 +40,7 @@ module.exports = function(output_location, sha, devices, entry_point, callback) 
             callback(true);
         } else {
             // copy relevant bits of mobile-spec project to output_location location
-            shell.cp('-Rf', [path.join(libDir, lib, 'spec', '*'), path.join(libDir, lib, 'www', 'barcodescanner.js')], output_location);
+            shell.cp('-Rf', [path.join(libDir, lib, 'spec', '*'), path.join(libDir, lib, 'www', '*')], output_location);
 
             // copy jasmine reporter into output_location location
             shell.cp('-Rf', jasmineReporter, output_location);

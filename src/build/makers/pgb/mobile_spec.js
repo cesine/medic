@@ -5,12 +5,15 @@ var shell     = require('shelljs'),
 
 var jasmineReporter = path.join(__dirname, 'mobile_spec', 'jasmine-jsreporter.js');
 
-module.exports = function(output_location, sha, devices, entry_point, callback) {
+module.exports = function(output_location, sha, name, entry_point, git_url, callback) {
+
+    console.log('[PGB] Preparing mobile spec');
+
     shell.rm('-Rf', output_location);
     shell.mkdir('-p', output_location);
     var tempAll = path.join(output_location, 'autotest', 'pages', 'all.html');
     var libDir = path.join(__dirname, '..', '..', '..', '..', 'lib');
-    var lib = 'mobile-spec';
+    var lib = name;
 
     var contents = [];
     if (fs.existsSync(libDir))
@@ -19,7 +22,7 @@ module.exports = function(output_location, sha, devices, entry_point, callback) 
     var cmd = null;
     if (contents.indexOf(lib) == -1) {
         // Don't have the lib, get it.
-        cmd = 'git clone https://git-wip-us.apache.org/repos/asf/cordova-mobile-spec.git ' + path.join(libDir, lib);
+        cmd = 'git clone ' + git_url + ' ' + path.join(libDir, lib);
     } else {
         // Have the lib, update it.
         cmd = 'cd ' + path.join(libDir, lib) + ' && git checkout -- . && git pull origin master';
