@@ -1,6 +1,6 @@
 {
     "couchdb":{
-        "host":"http://www.nhl.com"
+        "host":""
     },
     "dashboard":{
         "port":8088
@@ -36,16 +36,31 @@
         "keychainLocation":""
     },
 
-    "builders" : [
+    "makers" : [
         {
             "name":"cordova",
-            "apps":[
+            "specs":[
+                {
+                    "name":"mobile_spec",
+                    "entry":"autotest/pages/all.html"
+                }
+            ]
+        },
+        {
+            "name":"pgb",
+            "specs":[
+                {
+                    "name": "barcodescanner_spec"
+                },
                 {
                     "name": "mobile_spec",
-                    "git":"https://git-wip-us.apache.org/repos/asf/cordova-mobile-spec.git",
                     "entry":"autotest/pages/all.html"
                 }
             ]
         }
-    ]
+    ],
+    "pgb" : {
+        "username": "",
+        "password": ""
+    }
 }
