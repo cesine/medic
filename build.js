@@ -24,7 +24,7 @@ var temp = path.join(__dirname, 'temp');
 shell.rm('-rf', temp);
 shell.mkdir(temp);
 
-
+var default_spec = 'mobile_spec';
 var queue = new q();
 
 function go(maker) {
@@ -38,17 +38,20 @@ function go(maker) {
     // the hook detects updates to repos and triggers medic to run specs
     var hook = require('./src/build/projects/' + name + '/hook');
 
-    main(config.makers[i], function() {
+    main(maker, function() {
         hook(function(job) {
             for (var i in job) {
-                if (job.hasOwnProperty(i)) 
-                    job[i].builder = require('./src/build/projects/' + name + '/builder')('mobile_spec', "autotest/pages/all.html");
+                if (job.hasOwnProperty(i)) {
+                    var spec = job[i].spec ? job[i].spec.name : default_spec;
+                    var entry = job[i].spec ? job[i].spec.entry : config.app.entry;
+                    job[i].builder = require('./src/build/projects/' + name + '/builder')(spec, entry);
+                    queue.push(job);
+                }
             }
-            queue.push(job);
-        });
+        }, maker);
     });
 
 }
 
-for (var i in config.makers) go(config.makers[i]);
+config.makers.forEach(go);
 

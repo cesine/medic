@@ -19,22 +19,20 @@ function build_the_queue(q, callback) {
     } else callback();
 }
 
-function createJob(commits, app_entry_point, callback) {
-    var miniq = [];
+function createJob(commits, app_entry_point, stamp, callback) {
+    var miniq = []; 
     for (var lib in commits) if (commits.hasOwnProperty(lib)) {
         if (builders.hasOwnProperty(lib)) {
             var job = {
                 library:lib,
                 builder:builders[lib],
                 output_location:path.join(tempDir, 'test'),
-                entry:app_entry_point
+                entry:app_entry_point,
+                sha: stamp
             };
 
             // Some jobs might be for all devices, or specific devices
-            if (typeof commits[lib] == 'string') {
-                job.sha = commits[lib];
-            } else {
-                job.sha = commits[lib].sha;
+            if (typeof commits[lib] == 'object') {
                 job.devices = commits[lib].devices;
             }
             miniq.push(job);
@@ -55,14 +53,16 @@ module.exports = function(app_builder, app_entry_point, static) {
         //   }
         // }
 
-        builders[app_builder] = require('./' + app_builder);
+        var stamp = (new Date()).toJSON().substring(0,19).replace(/:/g, "-");
 
-        builders[app_builder](path.join(tempDir, 'test'), null, null, app_entry_point, function(err) {
+        spec_builder = require('./' + app_builder);
+
+        spec_builder(path.join(tempDir, 'test'), stamp, null, app_entry_point, function(err) {
             if (err) {
                 throw new Error('Could not build Test App! Aborting!');
             }
-            console.log('[MEDIC] [PGB] Test app built + ready.');
-            createJob(commits, app_entry_point, callback);
+            console.log('[PGB] Test app prepared.');
+            createJob(commits, app_entry_point, stamp, callback);
         });
     }
 };

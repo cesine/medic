@@ -3,23 +3,26 @@ var n 	      = require('ncallbacks'),
 
 var platforms = ['ios', 'android', 'blackberry'];
 
-module.exports = function(callback) {
+module.exports = function(callback, config) {
 
-    for (var i in platforms) {
-        check_n_queue(platforms[i], callback);
+    // TODO: more elaborate hook than just an interval
+    function runAll() {
+
+        config.specs.forEach(function(spec) {
+            platforms.forEach(function(platform) {
+                check_n_queue(spec, platform, callback);
+            });
+        });
+
     }
 
-    setInterval(function() {
-
-        for (var i in platforms) {
-            check_n_queue(platforms[i], callback);
-        }
-
-    }, 120000);
+    runAll();
+    
+    setInterval(runAll, 120000);
 
 };
 
-function check_n_queue(platform, callback) {
+function check_n_queue(spec, platform, callback) {
 	var repo = 'cordova-' + platform;
     // scan for devices for said platform
     var platform_scanner = require('../../platforms/' + platform + '/devices');
@@ -36,7 +39,8 @@ function check_n_queue(platform, callback) {
                 job[repo] = {
                     sha:commit,
                     numDevices:0,
-                    devices:{}
+                    devices:{},
+                    spec: spec
                 };
 
                 var end = n(numDs, function() {

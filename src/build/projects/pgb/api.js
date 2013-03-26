@@ -24,13 +24,13 @@ var PGB = {
         });
     },
 
-    build: function(platform, zip_path, output_path) {
+    build: function(platform, package_id, zip_path, output_path) {
         var options = {
             form: {
                 data: {
                     title: 'cordovaExample',
                     create_method: 'file',
-                    package: 'com.nitobi.mobspec',
+                    package: package_id,
                     keys: ( platform == 'ios' ? { ios: 42105 } : null )
                 },
                 file: zip_path
@@ -51,6 +51,10 @@ var PGB = {
 
     poll: function(id, platform) {
         PGB.checkStatus(id, function(e, data) {
+            if (e) {
+                console.log(e);
+                PGB.oncomplete(e);
+            }
             if (data.status[platform] == 'pending') {
                 setTimeout(function() {
                     PGB.poll(id, platform);

@@ -26,8 +26,10 @@ module.exports = function(output_location, sha, devices, entry_point, callback) 
     }
 
     // checkout correct sha
+    /*
     if (sha)
         cmd += ' && git checkout ' + sha;
+    */
 
     shell.exec(cmd, {silent:true, async:true}, function(code, output) {
         if (code > 0) {
@@ -37,12 +39,25 @@ module.exports = function(output_location, sha, devices, entry_point, callback) 
             // copy relevant bits of mobile-spec project to output_location location
             shell.cp('-Rf', [path.join(libDir, lib, 'autotest'), path.join(libDir, lib, 'cordova.js'), path.join(libDir, lib, 'master.css'), path.join(libDir, lib, 'main.js')], output_location);
 
+            // create an app into output dir
+            console.log('[PGB] Modifying app in ' + output_location);
+            try {
+                if (entry_point) {
+                    fs.writeFileSync(path.join(output_location, 'index.html'), '<html><body onload="window.location.href=\'' + entry_point + '\'"></body><html>');
+                }
+
+            } catch (e) {
+                error_writer(platform, sha, 'Exception thrown modifying test application.', e.message);
+                callback(true);
+                return;
+            }
+
             // copy jasmine reporter into output_location location
             shell.cp('-Rf', jasmineReporter, output_location);
             
             // drop sha to the top of the jasmine reporter
             var tempJasmine = path.join(output_location, 'jasmine-jsreporter.js');
-            fs.writeFileSync(tempJasmine, "var mobile_spec_sha = '" + sha + "';\n" + fs.readFileSync(tempJasmine, 'utf-8'), 'utf-8');
+            fs.writeFileSync(tempJasmine, "var library_sha = '" + sha + "';\n" + fs.readFileSync(tempJasmine, 'utf-8'), 'utf-8');
 
             // replace a few lines under the "all" tests autopage
             fs.writeFileSync(tempAll, fs.readFileSync(tempAll, 'utf-8').replace(/<script type=.text.javascript. src=.\.\..html.TrivialReporter\.js.><.script>/, '<script type="text/javascript" src="../html/TrivialReporter.js"></script><script type="text/javascript" src="../../jasmine-jsreporter.js"></script>'), 'utf-8');

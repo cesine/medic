@@ -1,8 +1,7 @@
 var shell        = require('shelljs'),
-    path         = require('path'),
-    n            = require('ncallbacks'),
-    error_writer = require('../../platforms/error_writer'),
-    fs           = require('fs');
+    path         = require('path');
+
+var package_id = "com.honegap.hydratest";
 
 module.exports = function(platform) {
     return function(output, sha, devices, entry_point, callback) {
@@ -10,26 +9,7 @@ module.exports = function(platform) {
             deploy          = require('../../platforms/' + platform + '/deploy');
 
         function log(msg) {
-            console.log('[' + platform + '] ' + msg + ' (sha: ' + sha.substr(0,7) + ')');
-        }
-
-        // create an app into output dir
-        log('Modifying app in ' + output);
-        try {
-            if (entry_point) {
-                fs.writeFileSync(path.join(output, 'index.html'), '<html><body onload="window.location.href=\'' + entry_point + '\'"></body><html>');
-            }
-
-            // add the sha to the junit reporter
-            var tempJasmine = path.join(output, 'jasmine-jsreporter.js');
-            if (fs.existsSync(tempJasmine)) {
-                fs.writeFileSync(tempJasmine, "var library_sha = '" + sha + "';\n" + fs.readFileSync(tempJasmine, 'utf-8'), 'utf-8');
-            }
-
-        } catch (e) {
-            error_writer(platform, sha, 'Exception thrown modifying test application.', e.message);
-            callback(true);
-            return;
+            console.log('[' + platform + '] ' + msg + ' (stamp: ' + sha + ')');
         }
 
         // compile
@@ -56,16 +36,14 @@ module.exports = function(platform) {
                 platform_scanner(function(err, devices) {
                     if (err) console.log('[BUILD] Error scanning for ' + pf + ' devices: ' + devices);
                     else {
-                        var sha = "";
-                        var package = 'com.nitobi.mobspec';
-                        deploy(sha, devices, binpath, package, callback);
+                        deploy(sha, devices, binpath, package_id, callback);
                     }
                 });
 
             }
 
             pgb.auth(function() {
-                pgb.build(platform, zip_path, output_dir);
+                pgb.build(platform, package_id, zip_path, output_dir);
             });
         });
 
