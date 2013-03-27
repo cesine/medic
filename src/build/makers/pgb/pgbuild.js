@@ -11,7 +11,7 @@ module.exports = function(platform) {
         }
 
         // compile
-        log('Compiling for ' + platform + '...');
+        log('Compiling for ' + platform + ' on PhoneGap Build...');
 
         var pgb = require('./api');
         var output_dir = path.join(output, '..');

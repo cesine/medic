@@ -17,7 +17,8 @@ limitations under the License.
 var path          = require('path'),
     shell         = require('shelljs'),
     config        = require('./config'),
-    q             = require('./src/build/queue');
+    q             = require('./src/build/queue'),
+    argv          = require('optimist').argv;
 
 // Clean out temp directory, where we keep our generated apps
 var temp = path.join(__dirname, 'temp');
@@ -61,5 +62,23 @@ function go(maker) {
 
 }
 
-config.makers.forEach(go);
+var makerName = argv.m || argv.maker;
+
+if (makerName) {
+    var maker_not_found = config.makers.every(function(maker) {
+        if (maker.name == makerName) {
+            console.log('[MEDIC] maker=' + makerName);
+            go(maker);
+            return false;
+        } else {
+            return true;
+        }
+    });
+
+    if (maker_not_found) {
+        console.log("[MEDIC] No maker " + makerName);
+    }
+} else {
+    config.makers.forEach(go);
+}
 

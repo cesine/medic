@@ -4,6 +4,7 @@ var request       = require('request'),
     libraries     = require('./libraries'),
     commit_list   = require('../../commit_list'),
     couch         = require('../../../couchdb/interface'),
+    argv          = require('optimist').argv,
     n             = require('ncallbacks');
 
 var apache_url = "http://urd.zones.apache.org:2069/json";
@@ -16,8 +17,7 @@ var should_build = {
 };
 
 // determine which platforms we listen to apache cordova commits to
-//var platforms = argv.p || argv.platforms || config.app.platforms;
-var platforms;
+var platforms = argv.p || argv.platforms || config.app.platforms;
 if (!platforms) {
     platforms = libraries.list;
 }

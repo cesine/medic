@@ -1,7 +1,11 @@
 var n 	      = require('ncallbacks'),
+    argv      = require('optimist').argv,
     couch     = require('../../../couchdb/interface');
 
-var platforms = ['ios', 'android', 'blackberry'];
+var platforms = argv.p || argv.platforms || ['ios', 'android', 'blackberry'];
+if (typeof platforms == 'string') {
+    platforms = platforms.split(",");
+}
 
 module.exports = function(callback, config) {
 
