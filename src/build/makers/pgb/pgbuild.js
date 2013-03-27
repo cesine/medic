@@ -5,8 +5,6 @@ var package_id = "com.phonegap.hydratest";
 
 module.exports = function(platform) {
     return function(output, sha, devices, entry_point, callback) {
-        var scan            = require('../../platforms/' + platform + '/devices'),
-            deploy          = require('../../platforms/' + platform + '/deploy');
 
         function log(msg) {
             console.log('[' + platform + '] ' + msg + ' (stamp: ' + sha + ')');
@@ -36,6 +34,7 @@ module.exports = function(platform) {
                 platform_scanner(function(err, devices) {
                     if (err) console.log('[BUILD] Error scanning for ' + pf + ' devices: ' + devices);
                     else {
+                        var deploy = require('../../platforms/' + pf + '/deploy')
                         deploy(sha, devices, binpath, package_id, callback);
                     }
                 });

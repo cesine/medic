@@ -38,8 +38,9 @@ function go(maker) {
     // the hook detects updates to repos and triggers medic to run specs
     var hook = require('./src/build/makers/' + name + '/hook');
 
-    main(maker, function() {
-        hook(function(job) {
+    main(maker, function(initial_queue) {
+
+        function queueJob(job) {
             for (var i in job) {
                 if (job.hasOwnProperty(i)) {
                     var spec = job[i].spec ? job[i].spec.name : default_spec;
@@ -49,7 +50,13 @@ function go(maker) {
                     queue.push(job);
                 }
             }
-        }, maker);
+        }
+
+        // main build may return an array of initial jobs to queue
+        initial_queue.forEach(queueJob);
+
+        // start listening
+        hook(queueJob, maker);
     });
 
 }
