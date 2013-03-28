@@ -28,6 +28,14 @@ module.exports = function(platform) {
                     return;
                 }
 
+                var cmd = 'cd ' + output_dir + ' && unzip ' + binpath;
+                console.log(cmd);
+                shell.exec(cmd, {silent:true, async:false});
+                console.log('copying ' + path.join(output_dir, 'Payload', 'cordovaExample.app'))
+                shell.cp('-Rf', path.join(output_dir, 'Payload', 'cordovaExample.app'), output_dir);
+                binpath = path.join(output_dir, 'cordovaExample.app');
+                shell.rm('-rf', path.join(output, 'Payload'));
+
                 var platform_scanner = require('../../platforms/' + pf + '/devices');
 
                 console.log('[PGB][BUILD] Scanning for ' + pf + ' devices')

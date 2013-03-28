@@ -31,7 +31,7 @@ var PGB = {
                     title: 'cordovaExample',
                     create_method: 'file',
                     package: package_id,
-                    keys: ( platform == 'ios' ? { ios: 42105 } : null )
+                    keys: ( platform == 'ios' ? { ios: 60281 } : null )
                 },
                 file: zip_path
             }
@@ -54,8 +54,7 @@ var PGB = {
             if (e) {
                 console.log(e);
                 PGB.oncomplete(e);
-            }
-            if (data.status[platform] == 'pending') {
+            } else if (data.status[platform] == 'pending') {
                 setTimeout(function() {
                     PGB.poll(id, platform);
                 }, 2000);
