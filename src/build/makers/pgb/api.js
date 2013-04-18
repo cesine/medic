@@ -24,14 +24,14 @@ var PGB = {
         });
     },
 
-    build: function(platform, package_id, zip_path, output_path) {
+    build: function(platform, package_id, zip_path, output_path, oncomplete) {
         var options = {
             form: {
                 data: {
                     title: 'cordovaExample',
                     create_method: 'file',
                     package: package_id,
-                    keys: ( platform == 'ios' ? { ios: 60281 } : null )
+                    phonegap_version: "2.5.0"
                 },
                 file: zip_path
             }
@@ -44,26 +44,26 @@ var PGB = {
             } else {
                 PGB.log('App ' + data.id + ' created.');
                 PGB.log('Waiting for ' + platform + ' build...');
-                PGB.poll(data.id, platform);
+                PGB.poll(data.id, platform, oncomplete);
             }
         });
     },
 
-    poll: function(id, platform) {
+    poll: function(id, platform, oncomplete) {
         PGB.checkStatus(id, function(e, data) {
             if (e) {
                 console.log(e);
-                PGB.oncomplete(e);
+                oncomplete(e);
             } else if (data.status[platform] == 'pending') {
                 setTimeout(function() {
-                    PGB.poll(id, platform);
+                    PGB.poll(id, platform, oncomplete);
                 }, 2000);
             } else if (data.status[platform] == 'complete' ) {
                 PGB.log(platform + ' build complete.');
-                PGB.download(id, platform);
+                PGB.download(id, platform, oncomplete);
             } else {
                 PGB.log(data.error[platform]);
-                PGB.oncomplete(data.error[platform]);
+                oncomplete(data.error[platform]);
             }
         });
     },
@@ -72,7 +72,7 @@ var PGB = {
         PGB.api.get('/apps/' + id, cb);
     },
 
-    download: function(id, platform) {
+    download: function(id, platform, oncomplete) {
         PGB.log('Downloading for ' + platform + '...');
         var binpath = path.join(PGB.output_path, 'app-' + id + '.' + PGB.extension(platform));
 
@@ -85,7 +85,7 @@ var PGB = {
                     PGB.log(e);
                 } else {
                     PGB.log('App deleted from Build.');
-                    PGB.oncomplete(null, id, platform, binpath);
+                    oncomplete(null, id, platform, binpath);
                 }
             });
         });

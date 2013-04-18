@@ -3,7 +3,7 @@ var shell     = require('shelljs'),
     config    = require('../../../../config'),
     fs        = require('fs');
 
-var jasmineReporter = path.join(__dirname, 'mobile_spec', 'jasmine-jsreporter.js');
+var jasmineReporter = path.join(__dirname, 'app_files', 'jasmine-jsreporter.js');
 
 module.exports = function(output_location, sha, name, entry_point, app_git, callback) {
 

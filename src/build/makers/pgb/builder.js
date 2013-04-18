@@ -1,6 +1,7 @@
 var path             = require('path'),
     fs               = require('fs'),
-    pgbuild          = require('./pgbuild');
+    pgbuild          = require('./pgbuild'),
+    shell            = require('shelljs');
 
 var builders = {
     'cordova-android':pgbuild('android'),
@@ -26,7 +27,7 @@ function createJob(commits, app_entry_point, stamp, callback) {
             var job = {
                 library:lib,
                 builder:builders[lib],
-                output_location:path.join(tempDir, 'test'),
+                output_location:tempDir,
                 entry:app_entry_point,
                 sha: stamp
             };
@@ -60,7 +61,14 @@ module.exports = function(app_builder, app_entry_point, static, app_git) {
             spec_builder = require('./plugin_spec');
         }
 
-        spec_builder(path.join(tempDir, 'test'), stamp, app_builder, app_entry_point, app_git, function(err) {
+        // get the platform from the commits object
+        var platform =  (function() {for (var lib in commits) if (commits.hasOwnProperty(lib)) return lib.split("-")[1] })();
+
+        var output_dir = path.join(tempDir, platform, 'test');
+        shell.rm('-rf', output_dir);
+        shell.mkdir('-p', output_dir);
+
+        spec_builder(output_dir, stamp, app_builder, app_entry_point, app_git, function(err) {
             if (err) {
                 throw new Error('Could not build Test App! Aborting!');
             }

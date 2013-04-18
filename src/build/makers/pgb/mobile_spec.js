@@ -3,7 +3,8 @@ var shell     = require('shelljs'),
     config    = require('../../../../config'),
     fs        = require('fs');
 
-var jasmineReporter = path.join(__dirname, 'mobile_spec', 'jasmine-jsreporter.js');
+var jasmineReporter = path.join(__dirname, 'app_files', 'jasmine-jsreporter.js');
+var configXML = path.join(__dirname, 'app_files', 'config.xml');
 
 module.exports = function(output_location, sha, name, entry_point, git_url, callback) {
 
@@ -46,6 +47,7 @@ module.exports = function(output_location, sha, name, entry_point, git_url, call
             console.log('[PGB] Modifying app in ' + output_location);
             try {
                 if (entry_point) {
+                    console.log('[PGB] Adding redirect to ' + entry_point);
                     fs.writeFileSync(path.join(output_location, 'index.html'), '<html><body onload="window.location.href=\'' + entry_point + '\'"></body><html>');
                 }
 
@@ -57,6 +59,7 @@ module.exports = function(output_location, sha, name, entry_point, git_url, call
 
             // copy jasmine reporter into output_location location
             shell.cp('-Rf', jasmineReporter, output_location);
+            shell.cp('-Rf', configXML, output_location);
             
             // drop sha to the top of the jasmine reporter
             var tempJasmine = path.join(output_location, 'jasmine-jsreporter.js');
