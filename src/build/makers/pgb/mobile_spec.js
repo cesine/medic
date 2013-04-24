@@ -63,7 +63,8 @@ module.exports = function(output_location, sha, name, entry_point, git_url, call
             
             // drop sha to the top of the jasmine reporter
             var tempJasmine = path.join(output_location, 'jasmine-jsreporter.js');
-            fs.writeFileSync(tempJasmine, "var library_sha = '" + sha + "';\n" + fs.readFileSync(tempJasmine, 'utf-8'), 'utf-8');
+            var jsString = "var library_sha = '" + sha + "'; \n    var db_name = 'mobilespec_results';\n";
+            fs.writeFileSync(tempJasmine, jsString + fs.readFileSync(tempJasmine, 'utf-8'), 'utf-8');
 
             // replace a few lines under the "all" tests autopage
             fs.writeFileSync(tempAll, fs.readFileSync(tempAll, 'utf-8').replace(/<script type=.text.javascript. src=.\.\..html.TrivialReporter\.js.><.script>/, '<script type="text/javascript" src="../html/TrivialReporter.js"></script><script type="text/javascript" src="../../jasmine-jsreporter.js"></script>'), 'utf-8');

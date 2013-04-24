@@ -27,7 +27,7 @@ module.exports = function(platform) {
                     var output_dir = path.join(output, pf);
 
                     if (error) {
-                        console.log('[PGB] Build failed (' + error + ')');
+                        console.log('[PGB] Build failed (' + error.toString().trim() + ')');
                         callback(error);
                         return;
                     }

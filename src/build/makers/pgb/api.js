@@ -40,7 +40,7 @@ var PGB = {
 
         PGB.api.post('/apps', options, function(e, data) {
             if (e) {
-                PGB.log(e);
+                oncomplete(e);
             } else {
                 PGB.log('App ' + data.id + ' created.');
                 PGB.log('Waiting for ' + platform + ' build...');
@@ -61,9 +61,10 @@ var PGB = {
             } else if (data.status[platform] == 'complete' ) {
                 PGB.log(platform + ' build complete.');
                 PGB.download(id, platform, oncomplete);
-            } else {
-                PGB.log(data.error[platform]);
+            } else if (data.error && data.error[platform]) {
                 oncomplete(data.error[platform]);
+            } else {
+                oncomplete("unknown error");
             }
         });
     },
