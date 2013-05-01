@@ -43,12 +43,22 @@ module.exports = function(output_location, sha, name, entry_point, git_url, call
             // copy relevant bits of mobile-spec project to output_location location
             shell.cp('-Rf', [path.join(libDir, lib, 'autotest'), path.join(libDir, lib, 'cordova.js'), path.join(libDir, lib, 'master.css'), path.join(libDir, lib, 'main.js')], output_location);
 
+            // copy jasmine reporter into output_location location
+            shell.cp('-Rf', jasmineReporter, output_location);
+            shell.cp('-Rf', configXML, output_location);
+
             // create an app into output dir
             console.log('[PGB] Modifying app in ' + output_location);
             try {
                 if (entry_point) {
                     console.log('[PGB] Adding redirect to ' + entry_point);
                     fs.writeFileSync(path.join(output_location, 'index.html'), '<html><body onload="window.location.href=\'' + entry_point + '\'"></body><html>');
+                    
+                    /*
+                    var tempConfig = path.join(output_location, "config.xml");
+                    var xml = fs.readFileSync(tempConfig, 'utf-8').replace(/<content src=.index.html. \/>/, '<content src="' + entry_point + '" />' );
+                    fs.writeFileSync(tempConfig, xml, 'utf-8');
+                    */
                 }
 
             } catch (e) {
@@ -56,10 +66,6 @@ module.exports = function(output_location, sha, name, entry_point, git_url, call
                 callback(true);
                 return;
             }
-
-            // copy jasmine reporter into output_location location
-            shell.cp('-Rf', jasmineReporter, output_location);
-            shell.cp('-Rf', configXML, output_location);
             
             // drop sha to the top of the jasmine reporter
             var tempJasmine = path.join(output_location, 'jasmine-jsreporter.js');

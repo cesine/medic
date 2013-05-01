@@ -1,6 +1,7 @@
 var n 	      = require('ncallbacks'),
     argv      = require('optimist').argv,
-    couch     = require('../../../couchdb/interface');
+    couch     = require('../../../couchdb/interface'),
+    request   = require('request');;
 
 var platforms = argv.p || argv.platforms || ['ios', 'android', 'blackberry'];
 if (typeof platforms == 'string') {

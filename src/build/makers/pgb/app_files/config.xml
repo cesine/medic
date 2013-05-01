@@ -17,5 +17,5 @@
     <preference name="target-device"    value="universal" />
     <preference name="fullscreen"       value="false" />
 
-    <content src="autotest/pages/all.html" />
+    <content src="index.html" />
 </widget>
