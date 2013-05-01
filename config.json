@@ -51,15 +51,12 @@
             "name":"pgb",
             "specs":[
                 {
-                    "name": "barcodescanner_spec",
-                    "git": "https://github.com/wildabeast/BarcodeScanner.git"
-                },
-                {
                     "name": "mobile_spec",
                     "git": "https://git-wip-us.apache.org/repos/asf/cordova-mobile-spec.git",
                     "entry": "autotest/pages/all.html"
                 }
-            ]
+            ],
+            "specs_url":""
         }
     ],
     "pgb" : {
