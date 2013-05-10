@@ -8,17 +8,21 @@ var request = require('request'),
 // Runs some initializations like retrieving the specs list
 module.exports = function(config, callback) {
     request.get({ url:config.specs_url, json:true }, function(e, r, data) {
-        
+
         if (e) {
             console.log('[PGB] Could not retrieve specs.json');
         } else {
-            Object.keys(data.specs).forEach(function(name) {
-                var spec = data.specs[name];
-                config.specs.push({
-                    name: name,
-                    git: spec.repo
+            try {
+                Object.keys(data.specs).forEach(function(name) {
+                    var spec = data.specs[name];
+                    config.specs.push({
+                        name: name,
+                        git: spec.repo
+                    });
                 });
-            });
+            } catch (ex) {
+                console.log('[PGB] Could not parse specs.json (' + ex.message + ')');
+            }
         }
 
         config.specs.forEach(function(spec) {
