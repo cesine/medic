@@ -37,7 +37,7 @@ module.exports = function(config, callback) {
 		        cmd = 'git clone ' + spec.git + ' ' + path.join(libDir, spec.name) + ' && cd ' + path.join(libDir, spec.name) + ' && git fetch';
 		    } else {
 		        // Have the lib, update it.
-		        cmd = 'cd ' + path.join(libDir, spec.name) + ' && git checkout -- . ';
+		        cmd = 'cd ' + path.join(libDir, spec.name) + ' && git checkout -- . && git pull';
 		    }
 
         	shell.exec(cmd, {silent:true, async:false});

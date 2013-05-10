@@ -104,7 +104,7 @@
                 version:device.version.toLowerCase(),
                 timestamp:Math.round(Math.floor((new Date()).getTime() / 1000)),
                 model:device.model || device.name,
-                name: db_name
+                name: spec_name
             });
         },
         postTests: function(json) {

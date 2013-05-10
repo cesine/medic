@@ -38,7 +38,7 @@ module.exports = function(output_location, sha, name, entry_point, app_git, call
             
             // drop sha to the top of the jasmine reporter
             var tempJasmine = path.join(output_location, 'jasmine-jsreporter.js');
-            var jsString = "var library_sha = '" + sha + "'; \n    var db_name = '" + name.toLowerCase() + "_spec_results';\n";
+            var jsString = "var library_sha = '" + sha + "'; \n    var spec_name = '" + name + "';\n";
             fs.writeFileSync(tempJasmine, jsString + fs.readFileSync(tempJasmine, 'utf-8'), 'utf-8');
 
             // replace app id
