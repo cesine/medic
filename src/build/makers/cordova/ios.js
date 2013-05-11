@@ -19,7 +19,7 @@ var shell        = require('shelljs'),
     libraries    = require('./libraries'),
     scan         = require('../../platforms/blackberry/devices'),
     deploy       = require('../../platforms/blackberry/deploy'),
-    error_writer = require('../../platforms/error_writer'),
+    error_writer = require('../../error_writer'),
     config       = require('../../../../config'),
     fs           = require('fs');
 

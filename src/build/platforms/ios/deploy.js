@@ -16,7 +16,7 @@ limitations under the License.
 */
 var path         = require('path'),
     shell        = require('shelljs'),
-    error_writer = require('../error_writer'),
+    error_writer = require('../../error_writer'),
     cp           = require('child_process');
 
 var root = path.join(__dirname, '..', '..', '..', '..');

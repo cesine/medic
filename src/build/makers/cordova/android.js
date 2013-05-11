@@ -16,7 +16,7 @@ limitations under the License.
 */
 var shell        = require('shelljs'),
     path         = require('path'),
-    error_writer = require('../../platforms/error_writer'),
+    error_writer = require('../../error_writer'),
     n            = require('ncallbacks'),
     libraries    = require('./libraries'),
     scan         = require('../../platforms/android/devices'),

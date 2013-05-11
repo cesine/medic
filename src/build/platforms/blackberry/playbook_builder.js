@@ -1,6 +1,6 @@
 var config = require('../../../../config'),
     path = require('path'),
-    error_writer = require('../error_writer'),
+    error_writer = require('../../error_writer'),
     shell = require('shelljs'),
     fs = require('fs');
 
