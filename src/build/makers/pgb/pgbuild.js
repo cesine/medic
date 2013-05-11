@@ -1,5 +1,7 @@
 var shell        = require('shelljs'),
-    path         = require('path');
+    path         = require('path'),
+    request      = require('request'),
+    config       = require('../../../../config');
 
 var package_id = "org.apache.cordova.example";
 
@@ -22,15 +24,22 @@ module.exports = function(platform) {
         shell.exec(cmd, {silent:true, async:true}, function(code, checkout_output) {
 
             pgb.auth(function() {
-                pgb.build(platform, package_id, zip_path, path.join(output, platform), function(error, id, pf, binpath) {
 
-                    var output_dir = path.join(output, pf);
+                var start = Date.now();
+
+                pgb.build(platform, package_id, zip_path, path.join(output, platform), function(error, id, pf, binpath) {
 
                     if (error) {
                         console.log('[PGB] Build failed (' + error.toString().trim() + ')');
                         callback(error);
                         return;
                     }
+
+                    var end = Date.now();
+                    var duration = Math.round((end - start) / 1000);
+                    postBuildTime(duration, pf, id, start);
+
+                    var output_dir = path.join(output, pf);
 
                     if (pf == "ios") {
                         var cmd = 'cd ' + output_dir + ' && unzip ' + binpath;
@@ -64,4 +73,9 @@ module.exports = function(platform) {
         });
 
     }
+}
+
+function postBuildTime(duration, pf, id, time) {
+    var url = config.couchdb.host + "/build_times/" + id;
+    request.put({ url: url, json: { 'duration': duration, 'platform': pf, 'time': time }});
 }
