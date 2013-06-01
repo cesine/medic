@@ -30,8 +30,7 @@ var PGB = {
                 data: {
                     title: 'cordovaExample',
                     create_method: 'file',
-                    package: package_id,
-                    phonegap_version: "2.5.0"
+                    package: package_id
                 },
                 file: zip_path
             }

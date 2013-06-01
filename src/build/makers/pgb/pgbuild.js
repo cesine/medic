@@ -54,7 +54,7 @@ module.exports = function(platform) {
                         var codesign = "codesign -f -s \"iPhone Developer\" --entitlements " + entitlements_plist + " " + binpath;
                         
                         console.log('[PGB] Re-signing iOS app bundle');
-                        shell.exec(codesign, {silent:true, async:false});
+                        shell.exec(codesign, {silent:false, async:false});
                     }
 
                     var platform_scanner = require('../../platforms/' + pf + '/devices');

@@ -17,7 +17,8 @@ module.exports = function(config, callback) {
                     var spec = data.specs[name];
                     config.specs.push({
                         name: name,
-                        git: spec.repo
+                        git: spec.repo,
+                        gap_versions: spec.gap_versions
                     });
                 });
             } catch (ex) {

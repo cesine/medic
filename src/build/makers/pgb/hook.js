@@ -36,13 +36,20 @@ function scan(config, platform, callback) {
         if (err) console.log('[BUILD] Error scanning for ' + platform + ' devices: ' + devices);
         else {
             config.specs.forEach(function(spec) {
-                check_n_queue(spec, platform, callback, devices);
+
+                var versions = [ null ];
+                if (spec.gap_versions) {
+                    versions = spec.gap_versions.split(",");
+                }
+                versions.forEach(function(gap_version) {
+                    check_n_queue(spec, platform, callback, devices, gap_version);
+                });
             });
         }
     });
 }
 
-function check_n_queue(spec, platform, callback, devices) {
+function check_n_queue(spec, platform, callback, devices, gap_version) {
 	var repo = 'cordova-' + platform;
     var numDs = 0;
 
@@ -55,7 +62,8 @@ function check_n_queue(spec, platform, callback, devices) {
             sha:commit,
             numDevices:0,
             devices:{},
-            spec: spec
+            spec: spec,
+            gap_version: gap_version
         };
 
         var end = n(numDs, function() {

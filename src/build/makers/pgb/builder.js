@@ -63,12 +63,13 @@ module.exports = function(app_builder, app_entry_point, static, app_git) {
 
         // get the platform from the commits object
         var platform =  (function() {for (var lib in commits) if (commits.hasOwnProperty(lib)) return lib.split("-")[1] })();
+        var gap_version =  (function() {for (var lib in commits) if (commits.hasOwnProperty(lib)) return commits[lib].gap_version })();
 
         var output_dir = path.join(tempDir, platform, 'test');
         shell.rm('-rf', output_dir);
         shell.mkdir('-p', output_dir);
 
-        spec_builder(output_dir, stamp, app_builder, app_entry_point, app_git, function(err) {
+        spec_builder(output_dir, stamp, app_builder, app_entry_point, app_git, gap_version, function(err) {
             if (err) {
                 throw new Error('Could not build Test App! Aborting!');
             }

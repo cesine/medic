@@ -6,7 +6,7 @@ var shell     = require('shelljs'),
 var jasmineReporter = path.join(__dirname, 'app_files', 'jasmine-jsreporter.js');
 var configXML = path.join(__dirname, 'app_files', 'config.xml');
 
-module.exports = function(output_location, sha, name, entry_point, git_url, callback) {
+module.exports = function(output_location, sha, name, entry_point, git_url, gap_version, callback) {
 
     console.log('[PGB] Preparing mobile spec');
 

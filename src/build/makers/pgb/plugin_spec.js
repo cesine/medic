@@ -6,9 +6,9 @@ var shell     = require('shelljs'),
 
 var jasmineReporter = path.join(__dirname, 'app_files', 'jasmine-jsreporter.js');
 
-module.exports = function(output_location, sha, name, entry_point, app_git, callback) {
+module.exports = function(output_location, sha, name, entry_point, app_git, gap_version, callback) {
 
-    console.log('[PGB] Preparing plugin spec: ' + name);
+    console.log('[PGB] Preparing plugin spec: ' + name + ' @ ' + gap_version);
 
     shell.rm('-Rf', output_location);
     shell.mkdir('-p', output_location);
@@ -45,6 +45,9 @@ module.exports = function(output_location, sha, name, entry_point, app_git, call
             var config_path = path.join(output_location, 'config.xml');
             var doc = new et.ElementTree(et.XML(fs.readFileSync(config_path, 'utf-8')));
             doc.getroot().attrib.id = "org.apache.cordova.example";
+            if (gap_version) {
+                doc.getroot().find("gap:preference[@name='phonegap-version']").attrib.value = gap_version;
+            }
             fs.writeFileSync(config_path, doc.write({indent:4}), 'utf-8');
 
             // replace a few lines in the start page

@@ -104,7 +104,8 @@
                 version:device.version.toLowerCase(),
                 timestamp:Math.round(Math.floor((new Date()).getTime() / 1000)),
                 model:device.model || device.name,
-                name: spec_name
+                name: spec_name,
+                phonegap: (typeof window.device == 'object' ? window.device.cordova : null)
             });
         },
         postTests: function(json) {
