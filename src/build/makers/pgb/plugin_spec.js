@@ -41,10 +41,24 @@ module.exports = function(output_location, sha, name, entry_point, app_git, gap_
             var jsString = "var library_sha = '" + sha + "'; \n    var spec_name = '" + name + "';\n";
             fs.writeFileSync(tempJasmine, jsString + fs.readFileSync(tempJasmine, 'utf-8'), 'utf-8');
 
-            // replace app id
             var config_path = path.join(output_location, 'config.xml');
-            var doc = new et.ElementTree(et.XML(fs.readFileSync(config_path, 'utf-8')));
+
+            // if the spec doesn't have a config.xml, put one in
+            var doc;
+            if (!fs.existsSync(config_path)) {
+                var default_config = path.join(__dirname, 'app_files', 'config.xml');
+                shell.cp('-f', default_config, output_location);
+
+                // add the plugin
+                doc = new et.ElementTree(et.XML(fs.readFileSync(config_path, 'utf-8')));
+                doc.getroot().find("gap:plugin").attrib.name = name;
+                fs.writeFileSync(config_path, doc.write({indent:4}), 'utf-8');
+            }
+
+            // set the app id
+            doc = new et.ElementTree(et.XML(fs.readFileSync(config_path, 'utf-8')));
             doc.getroot().attrib.id = "org.apache.cordova.example";
+            // set the phonegap version
             if (gap_version) {
                 doc.getroot().find("gap:preference[@name='phonegap-version']").attrib.value = gap_version;
             }
