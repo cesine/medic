@@ -1,21 +1,6 @@
 {
     "couchdb":{
-        "host":""
-    },
-    "dashboard":{
-        "port":8088
-    },
-    "app":{
-        "static":{
-            "path":null
-        },
-        "dynamic":{
-            "commit_hook":"src/build/makers/mobile_spec/commit_hook.js",
-            "builder":"src/build/makers/mobile_spec",
-            "git":"https://git-wip-us.apache.org/repos/asf/cordova-mobile-spec.git"
-        },
-        "entry":"autotest/pages/all.html",
-        "platforms":null
+        "host":null
     },
     "blackberry":{
         "devices":{
@@ -32,7 +17,13 @@
         }
     },
     "ios":{
-        "keychainPassword":"",
-        "keychainLocation":""
+        "keychainPassword":null,
+        "keychainLocation":null
+    },
+    "specs":[],
+    "specs_url":null,
+    "pgb" : {
+        "username": "",
+        "password": ""
     }
 }
