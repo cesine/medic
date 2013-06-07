@@ -8,7 +8,7 @@ var builders = {
     'cordova-ios':pgbuild('ios'),
     'cordova-blackberry':pgbuild('blackberry')
 };
-var tempDir = path.join(__dirname, '..', '..', '..', 'temp');
+var tempDir = path.join(__dirname, '..', '..', 'temp');
 
 function build_the_queue(q, callback) {
     var job = q.shift();
