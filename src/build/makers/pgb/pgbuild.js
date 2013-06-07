@@ -50,6 +50,10 @@ module.exports = function(platform) {
                         binpath = path.join(output_dir, 'cordovaExample.app');
                         shell.rm('-rf', path.join(output_dir, 'Payload'));
 
+                        if (config.ios.keychainLocation != "" && config.ios.keychainPassword != "") {
+                            var cmd = 'security unlock-keychain -p ' + config.ios.keychain_password + ' ' + config.ios.keychain_location;
+                            shell.exec(cmd, {silent:false, async:false});
+                        }
                         var entitlements_plist = path.join(__dirname, 'app_files', 'Entitlements.plist');
                         var codesign = "codesign -f -s \"iPhone Developer\" --entitlements " + entitlements_plist + " " + binpath;
                         
