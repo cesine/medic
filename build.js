@@ -17,7 +17,7 @@ limitations under the License.
 var path          = require('path'),
     shell         = require('shelljs'),
     config        = require('./config'),
-    q             = require('./src/build/queue'),
+    q             = require('./src/queue'),
     argv          = require('optimist').argv;
 
 // Clean out temp directory, where we keep our generated apps
@@ -28,57 +28,32 @@ shell.mkdir(temp);
 var default_spec = 'mobile_spec';
 var queue = new q();
 
-function go(maker) {
-    var name = maker.name;
+console.log('[MEDIC] Running.');
 
-    console.log('[MEDIC] Running maker ' + name);
+// main initializes the builder, updating build tools
+var main = require('./src/builder/build');
 
-    // main initializes the builder, updating build tools
-    var main = require('./src/build/makers/' + name + '/build');
+// the hook detects updates to repos and triggers medic to run specs
+var hook = require('./src/builder/hook');
 
-    // the hook detects updates to repos and triggers medic to run specs
-    var hook = require('./src/build/makers/' + name + '/hook');
+main(config, function(initial_queue) {
 
-    main(maker, function(initial_queue) {
-
-        function queueJob(job) {
-            for (var i in job) {
-                if (job.hasOwnProperty(i)) {
-                    var spec = job[i].spec ? job[i].spec.name : default_spec;
-                    var git_url = job[i].spec ? job[i].spec.git : null;
-                    var entry = job[i].spec ? job[i].spec.entry : config.app.entry;
-                    job[i].builder = require('./src/build/makers/' + name + '/builder')(spec, entry, false, git_url);
-                    queue.push(job);
-                }
+    function queueJob(job) {
+        for (var i in job) {
+            if (job.hasOwnProperty(i)) {
+                var spec = job[i].spec ? job[i].spec.name : default_spec;
+                var git_url = job[i].spec ? job[i].spec.git : null;
+                var entry = job[i].spec ? job[i].spec.entry : config.app.entry;
+                job[i].builder = require('./src/builder/builder')(spec, entry, false, git_url);
+                queue.push(job);
             }
         }
-
-        // main build may return an array of initial jobs to queue
-        initial_queue.forEach(queueJob);
-
-        // start listening
-        hook(queueJob, maker);
-    });
-
-}
-
-var makerName = argv.m || argv.maker;
-
-if (makerName) {
-    var maker_not_found = config.makers.every(function(maker) {
-        if (maker.name == makerName) {
-            console.log('[MEDIC] maker=' + makerName);
-            go(maker);
-            return false;
-        } else {
-            return true;
-        }
-    });
-
-    if (maker_not_found) {
-        console.log("[MEDIC] No maker " + makerName);
     }
-} else {
-    config.makers.forEach(go);
-}
+
+    // main build may return an array of initial jobs to queue
+    initial_queue.forEach(queueJob);
+
+    // start listening
+    hook(queueJob, config);
+});
 

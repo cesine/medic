@@ -1,21 +1,6 @@
 {
     "couchdb":{
-        "host":""
-    },
-    "dashboard":{
-        "port":8088
-    },
-    "app":{
-        "static":{
-            "path":null
-        },
-        "dynamic":{
-            "commit_hook":"./mobile_spec/commit_hook.js",
-            "builder":"src/build/makers/cordova/mobile_spec",
-            "git":"https://git-wip-us.apache.org/repos/asf/cordova-mobile-spec.git"
-        },
-        "entry":"autotest/pages/all.html",
-        "platforms":null
+        "host":null
     },
     "blackberry":{
         "devices":{
@@ -32,33 +17,11 @@
         }
     },
     "ios":{
-        "keychainPassword":"",
-        "keychainLocation":""
+        "keychainPassword":null,
+        "keychainLocation":null
     },
-
-    "makers" : [
-        {
-            "name":"cordova",
-            "specs":[
-                {
-                    "name": "mobile_spec",
-                    "git": "https://git-wip-us.apache.org/repos/asf/cordova-mobile-spec.git",
-                    "entry": "autotest/pages/all.html"
-                }
-            ]
-        },
-        {
-            "name":"pgb",
-            "specs":[
-                {
-                    "name": "mobile_spec",
-                    "git": "https://git-wip-us.apache.org/repos/asf/cordova-mobile-spec.git",
-                    "entry": "autotest/pages/all.html"
-                }
-            ],
-            "specs_url":""
-        }
-    ],
+    "specs":[],
+    "specs_url":null,
     "pgb" : {
         "username": "",
         "password": ""
