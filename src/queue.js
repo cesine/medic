@@ -74,9 +74,8 @@ q.prototype.build = function() {
 
 // set up individual queues for each platform
 var platform_queue = {};
-platform_queue['cordova-android'] = new q('cordova-android');
-platform_queue['cordova-ios'] = new q('cordova-ios');
-platform_queue['test'] = new q('Test App');
+platform_queue['android'] = new q('android');
+platform_queue['ios'] = new q('ios');
 
 function queue(app_builder, app_entry_point, static) {
     //builder = require('./builder')(app_builder, app_entry_point, static);

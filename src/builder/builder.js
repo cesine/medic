@@ -4,9 +4,9 @@ var path             = require('path'),
     shell            = require('shelljs');
 
 var builders = {
-    'cordova-android':pgbuild('android'),
-    'cordova-ios':pgbuild('ios'),
-    'cordova-blackberry':pgbuild('blackberry')
+    'android':pgbuild('android'),
+    'ios':pgbuild('ios'),
+    'blackberry':pgbuild('blackberry')
 };
 var tempDir = path.join(__dirname, '..', '..', 'temp');
 
@@ -62,7 +62,7 @@ module.exports = function(app_builder, app_entry_point, static, app_git) {
         }
 
         // get the platform from the commits object
-        var platform =  (function() {for (var lib in commits) if (commits.hasOwnProperty(lib)) return lib.split("-")[1] })();
+        var platform =  (function() {for (var lib in commits) if (commits.hasOwnProperty(lib)) return lib })();
         var gap_version =  (function() {for (var lib in commits) if (commits.hasOwnProperty(lib)) return commits[lib].gap_version })();
 
         var output_dir = path.join(tempDir, platform, 'test');

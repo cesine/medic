@@ -53,7 +53,6 @@ function scan(config, platform, callback) {
 }
 
 function check_n_queue(spec, platform, callback, devices, gap_version) {
-	var repo = 'cordova-' + platform;
     var numDs = 0;
 
     for (var d in devices) if (devices.hasOwnProperty(d)) numDs++;
@@ -61,7 +60,7 @@ function check_n_queue(spec, platform, callback, devices, gap_version) {
     	var commit = 'HEAD';
         var job = {};
         var targets = 0;
-        job[repo] = {
+        job[platform] = {
             sha:commit,
             numDevices:0,
             devices:{},
@@ -71,7 +70,7 @@ function check_n_queue(spec, platform, callback, devices, gap_version) {
 
         var end = n(numDs, function() {
             if (targets > 0) {
-                job[repo].numDevices = targets;
+                job[platform].numDevices = targets;
                 callback(job);
             }
         });
@@ -82,7 +81,7 @@ function check_n_queue(spec, platform, callback, devices, gap_version) {
             var model = device.model;
 
             targets++;
-            job[repo].devices[id] = {
+            job[platform].devices[id] = {
                 version:version,
                 model:model
             }; 
