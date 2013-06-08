@@ -51,7 +51,7 @@ module.exports = function(platform) {
                         shell.rm('-rf', path.join(output_dir, 'Payload'));
 
                         if (config.ios.keychainLocation && config.ios.keychainPassword) {
-                            var cmd = 'security unlock-keychain -p ' + config.ios.keychain_password + ' ' + config.ios.keychain_location;
+                            var cmd = 'security unlock-keychain -p ' + config.ios.keychainPassword + ' ' + config.ios.keychainLocation;
                             shell.exec(cmd, {silent:false, async:false});
                         }
                         var entitlements_plist = path.join(__dirname, 'app_files', 'Entitlements.plist');
