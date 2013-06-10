@@ -31,7 +31,7 @@ module.exports = function(output_location, sha, name, entry_point, app_git, gap_
             callback(true);
         } else {
             // copy relevant bits of spec project to output_location location
-            shell.cp('-Rf', [path.join(libDir, lib, 'spec', '*'), path.join(libDir, lib, 'www', '*')], output_location);
+            shell.cp('-Rf', path.join(libDir, lib, 'spec', '*'), output_location);
 
             // copy jasmine reporter into output_location location
             shell.cp('-Rf', jasmineReporter, output_location);
