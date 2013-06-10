@@ -37,9 +37,6 @@ function scan(config, platform, callback) {
         else {
             config.specs.forEach(function(spec) {
 
-                // use the spec parameter to only run one spec
-                if (argv.spec && spec.name != argv.spec) return;
-
                 var versions = [ null ];
                 if (spec.gap_versions) {
                     versions = spec.gap_versions.split(",");
