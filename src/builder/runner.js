@@ -8,13 +8,13 @@ if (typeof platforms == 'string') {
     platforms = platforms.split(",");
 }
 
-module.exports = function(callback, config) {
+module.exports = function(callback, specs) {
 
     // TODO: more elaborate hook than just an interval
     function runAll() {
 
         platforms.forEach(function(platform) {
-            scan(config, platform, callback)
+            scan(specs, platform, callback)
         });
 
     }
@@ -25,7 +25,7 @@ module.exports = function(callback, config) {
 
 };
 
-function scan(config, platform, callback) {
+function scan(specs, platform, callback) {
 
     var platform_scanner = require('../platforms/' + platform + '/devices');
     platform_scanner(function(err, devices) {
@@ -35,7 +35,7 @@ function scan(config, platform, callback) {
 
         if (err) console.log('[BUILD] Error scanning for ' + platform + ' devices: ' + devices);
         else {
-            config.specs.forEach(function(spec) {
+            specs.forEach(function(spec) {
 
                 var versions = [ null ];
                 if (spec.gap_versions) {

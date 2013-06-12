@@ -32,35 +32,49 @@ if (argv.server) {
     // fire up a server, n start waitin for requests
 
     console.log('[MEDIC] Running web server.');
+    
+    var express = require('express'),
+        app = express();
 
-    var app = require("express")();
+    app.use(express.bodyParser());
 
-    app.use(app.router); //use both root and other routes below
-
-    // redirect db queries to remote couchdb
-    app.get("/*", function(req, response){ 
-        // so secure.
-        var s = shell.exec('whoami');
-        response.send();
+    app.post('/trigger', function(request, response){
+      var params = request.body;
+      if (params.name && params.git && params.gap_versions) {
+          response.send("OK!");    // echo the result back
+          run([{
+            "name": params.name,
+            "tag": "0.4.0",
+            "git": params.git,
+            "gap_versions": params.gap_versions
+          }]);
+      } else {
+        console.log(request.body);
+      }
     });
 
-    var address = "127.0.0.1",
-        port = 8081;
-
-    console.log("Listening to http://" + address + ":" + port + "/");
+    var address = "127.0.0.1", port = 8081;
     app.listen(port, address);
+    console.log("Listening to http://" + address + ":" + port + "/");
 
 
 } else {
 
     console.log('[MEDIC] Running.');
-    // clones the repos
+
+    run(config.specs);
+}
+
+function run(specs) {
+
+    console.log
+        // clones the repos
     var init = require('./src/builder/init');
 
     // the runner, well, runs
     var runner = require('./src/builder/runner');
 
-    init(config, function(initial_queue) {
+    init(specs, function(initial_queue) {
 
         function queueJob(job) {
             for (var i in job) {
@@ -78,7 +92,8 @@ if (argv.server) {
         initial_queue.forEach(queueJob);
 
         // start listening
-        runner(queueJob, config);
+        runner(queueJob, specs);
     });
+
 }
 

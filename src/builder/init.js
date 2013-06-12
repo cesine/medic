@@ -4,21 +4,25 @@ var request = require('request'),
     shell   = require('shelljs'),
     fs      = require('fs'),
     argv    = require('optimist').argv,
+    config  = require('../../config'),
     libDir  = path.join(__dirname, '..', '..', 'lib');
 
 // Runs some initializations like retrieving the specs list
-module.exports = function(config, callback) {
+module.exports = function(specs, callback) {
     if (argv.spec) {
         var name = argv.name || argv.spec.match(/.*\/([^/]+)\.[^\.]+$/)[1];
         var gap_versions = argv.gap_versions || "2.3.0,2.5.0,2.7.0";
 
-        config.specs.push({
+        specs.push({
             name: name,
             git: argv.spec,
             gap_versions: gap_versions
         });
 
-        cloneSpecs(config);
+        cloneSpecs(specs);
+        callback([]);
+    } else if (argv.server) {
+        cloneSpecs(specs);
         callback([]);
     } else {
         console.log('[BUILD] Getting specs from ' + config.specs_url);
@@ -31,7 +35,7 @@ module.exports = function(config, callback) {
                 try {
                     Object.keys(data.specs).forEach(function(name) {
                         var spec = data.specs[name];
-                        config.specs.push({
+                        specs.push({
                             name: name,
                             git: spec.repo,
                             gap_versions: spec.gap_versions
@@ -42,17 +46,17 @@ module.exports = function(config, callback) {
                 }
             }
 
-            cloneSpecs(config);
+            cloneSpecs(specs);
 
             callback([]);
         });
     }
 };
 
-function cloneSpecs(config) {
-    console.log('[PGB] ' + config.specs.length + ' specs found - cloning ...');
+function cloneSpecs(specs) {
+    console.log('[PGB] ' + specs.length + ' specs found - cloning ...');
 
-    config.specs.forEach(function(spec) {
+    specs.forEach(function(spec) {
 
         var contents = [];
         if (fs.existsSync(libDir))
@@ -67,6 +71,6 @@ function cloneSpecs(config) {
             cmd = 'cd ' + path.join(libDir, spec.name) + ' && git checkout -- . && git pull';
         }
 
-        shell.exec(cmd, {silent:false, async:false});
+        shell.exec(cmd, {silent:true, async:false});
     });
 }
