@@ -53,9 +53,8 @@ if (argv.server) {
       }
     });
 
-    var address = "127.0.0.1", port = 8081;
-    app.listen(port, address);
-    console.log("Listening to http://" + address + ":" + port + "/");
+    app.listen(config.api_host.port, config.api_host.address);
+    console.log("Listening to http://" + config.api_host.address + ":" + config.api_host.port + "/");
 
 
 } else {
