@@ -33,8 +33,8 @@ console.log('[MEDIC] Running.');
 // main initializes the builder, updating build tools
 var init = require('./src/builder/init');
 
-// the hook detects updates to repos and triggers medic to run specs
-var hook = require('./src/builder/hook');
+// the runner, well, runs
+var runner = require('./src/builder/runner');
 
 init(config, function(initial_queue) {
 
@@ -54,6 +54,6 @@ init(config, function(initial_queue) {
     initial_queue.forEach(queueJob);
 
     // start listening
-    hook(queueJob, config);
+    runner(queueJob, config);
 });
 
