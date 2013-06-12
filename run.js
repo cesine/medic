@@ -31,12 +31,12 @@ var queue = new q();
 console.log('[MEDIC] Running.');
 
 // main initializes the builder, updating build tools
-var main = require('./src/builder/build');
+var init = require('./src/builder/init');
 
 // the hook detects updates to repos and triggers medic to run specs
 var hook = require('./src/builder/hook');
 
-main(config, function(initial_queue) {
+init(config, function(initial_queue) {
 
     function queueJob(job) {
         for (var i in job) {
@@ -50,7 +50,7 @@ main(config, function(initial_queue) {
         }
     }
 
-    // main build may return an array of initial jobs to queue
+    // init build may return an array of initial jobs to queue
     initial_queue.forEach(queueJob);
 
     // start listening

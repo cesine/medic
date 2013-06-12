@@ -67,6 +67,6 @@ function cloneSpecs(config) {
             cmd = 'cd ' + path.join(libDir, spec.name) + ' && git checkout -- . && git pull';
         }
 
-        shell.exec(cmd, {silent:true, async:false});
+        shell.exec(cmd, {silent:false, async:false});
     });
 }

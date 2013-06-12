@@ -30,7 +30,8 @@ var PGB = {
                 data: {
                     title: 'cordovaExample',
                     create_method: 'file',
-                    package: package_id
+                    package: package_id,
+                    hydrates: true
                 },
                 file: zip_path
             }
