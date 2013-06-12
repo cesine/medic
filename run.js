@@ -38,7 +38,12 @@ if (argv.server) {
 
     app.use(express.bodyParser());
 
-    app.post('/trigger', function(request, response){
+    // Oh so secure.
+    var auth = express.basicAuth(function(user, pass) {
+       return (user == config.pgb.username && pass == config.pgb.password);
+    });
+
+    app.post('/trigger', auth, function(request, response){
       var params = request.body;
       if (params.name && params.git && params.gap_versions) {
           response.send("OK!");    // echo the result back
@@ -49,8 +54,12 @@ if (argv.server) {
             "gap_versions": params.gap_versions
           }]);
       } else {
-        console.log(request.body);
+        response.send('your params suck balls.');
       }
+    });
+
+    app.get('/*', function(request, response) {
+        response.send("'koff.");
     });
 
     app.listen(config.api_host.port, config.api_host.address);
