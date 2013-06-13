@@ -43,7 +43,7 @@ if (argv.server) {
        return (user == config.pgb.username && pass == config.pgb.password);
     });
 
-    app.post('/trigger', auth, function(request, response){
+    app.post('/medic', auth, function(request, response){
       var params = request.body;
       if (params.name && params.git && params.gap_versions) {
           response.send("OK!");    // echo the result back
