@@ -46,7 +46,7 @@ if (argv.server) {
     app.post('/medic', auth, function(request, response){
       var params = request.body;
       if (params.name && params.git && params.gap_versions) {
-          response.send("OK!");    // echo the result back
+          response.send("");    // echo the result back
           run([{
             "name": params.name,
             "tag": "0.4.0",
@@ -54,12 +54,12 @@ if (argv.server) {
             "gap_versions": params.gap_versions
           }]);
       } else {
-        response.send('your params suck balls.');
+        response.status(400).send('{"error":"your params suck balls"}');
       }
     });
 
     app.get('/*', function(request, response) {
-        response.send("'koff.");
+        response.status(404).send("'koff.");
     });
 
     app.listen(config.api_host.port, config.api_host.address);
