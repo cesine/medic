@@ -45,7 +45,7 @@ var PGB = {
 
         PGB.api.post('/apps', params, function(e, data) {
             if (e) {
-                oncomplete(e);
+                oncomplete(e, null, opts.platform);
             } else {
                 PGB.log('App ' + data.id + ' created.');
                 PGB.log('Waiting for ' + opts.platform + ' build...');
@@ -58,7 +58,7 @@ var PGB = {
         PGB.checkStatus(id, function(e, data) {
             if (e) {
                 console.log(e);
-                oncomplete(e);
+                oncomplete(e, id, platform);
             } else if (data.status[platform] == 'pending') {
                 setTimeout(function() {
                     PGB.poll(id, platform, oncomplete);
@@ -67,9 +67,9 @@ var PGB = {
                 PGB.log(platform + ' build complete.');
                 PGB.download(id, platform, oncomplete);
             } else if (data.error && data.error[platform]) {
-                oncomplete(data.error[platform]);
+                oncomplete(data.error[platform], id, platform);
             } else {
-                oncomplete("unknown error");
+                oncomplete("unknown error", id, platform);
             }
         });
     },

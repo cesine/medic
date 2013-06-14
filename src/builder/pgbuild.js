@@ -2,7 +2,8 @@ var shell        = require('shelljs'),
     path         = require('path'),
     request      = require('request'),
     config       = require('../../config'),
-    argv         = require('optimist').argv;
+    argv         = require('optimist').argv,
+    error_writer = require('../error_writer');
 
 var package_id = "org.apache.cordova.example";
 
@@ -43,6 +44,7 @@ module.exports = function(platform) {
 
                     if (error) {
                         console.log('[PGB] Build failed (' + error.toString().trim() + ')');
+                        error_writer(pf || "", sha, 'PGB Build Failure - ' + id, error.toString().trim());
                         callback(error);
                         return;
                     }
