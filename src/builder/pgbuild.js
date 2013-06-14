@@ -1,13 +1,19 @@
 var shell        = require('shelljs'),
     path         = require('path'),
     request      = require('request'),
-    config       = require('../../config');
+    config       = require('../../config'),
+    argv         = require('optimist').argv;
 
 var package_id = "org.apache.cordova.example";
 
 
 module.exports = function(platform) {
-    return function(output, sha, devices, entry_point, callback) {
+    return function(job, callback) {
+
+        var output      = job.output_location,
+            sha         = job.sha,
+            devices     = job.devices,
+            entry_point = job.entry;
 
         function log(msg) {
             console.log('[' + platform + '] ' + msg + ' (stamp: ' + sha + ')');
@@ -21,13 +27,19 @@ module.exports = function(platform) {
         var zip_path = path.join(output, platform, 'www.zip');
         var cmd = 'cd ' + path.join(output, platform, 'test') + ' && zip -r ' + zip_path + ' ./*';
 
+        var options = {
+            platform: platform,
+            zip_path: zip_path,
+            output_path: path.join(output, platform)
+        };
+
         shell.exec(cmd, {silent:true, async:true}, function(code, checkout_output) {
 
-            pgb.auth(function() {
+            pgb.auth({ username: config.pgb.username, password: config.pgb.password, host: job.host || argv.host || null }, function() {
 
                 var start = Date.now();
 
-                pgb.build(platform, package_id, zip_path, path.join(output, platform), function(error, id, pf, binpath) {
+                pgb.build(options, function(error, id, pf, binpath) {
 
                     if (error) {
                         console.log('[PGB] Build failed (' + error.toString().trim() + ')');

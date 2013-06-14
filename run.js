@@ -51,7 +51,8 @@ if (argv.server) {
             "name": params.name,
             "tag": "0.4.0",
             "git": params.git,
-            "gap_versions": params.gap_versions
+            "gap_versions": params.gap_versions,
+            "host": params.host || null
           }]);
       } else {
         response.status(400).send('{"error":"your params suck balls"}');

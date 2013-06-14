@@ -1,7 +1,6 @@
 var	client 	= require('phonegap-build-api'),
 	fs 		= require('fs'),
-    path 	= require('path'),
-    config  = require('../../config');
+    path 	= require('path');
 
 var PGB = {
     api: null,
@@ -13,8 +12,16 @@ var PGB = {
         console.log('[PGB] ' + s);
     },
 
-    auth: function(cb) {
-        client.auth({ username: config.pgb.username, password: config.pgb.password }, function(e, api) {
+    auth: function(opts, cb) {
+        if (opts.host) console.log('[PGB] Using host ' + opts.host);
+        var authParams = {
+            username: opts.username, 
+            password: opts.password
+        };
+        if (opts.host) {
+            authParams.host = opts.host
+        }
+        client.auth(authParams, function(e, api) {
             if (e) {
                 PGB.log(e);
             } else {
@@ -24,27 +31,25 @@ var PGB = {
         });
     },
 
-    build: function(platform, package_id, zip_path, output_path, oncomplete) {
-        var options = {
+    build: function(opts, oncomplete) {
+        var params = {
             form: {
                 data: {
                     title: 'cordovaExample',
-                    create_method: 'file',
-                    package: package_id,
-                    hydrates: true
+                    create_method: 'file'
                 },
-                file: zip_path
+                file: opts.zip_path
             }
         };
-        PGB.output_path = output_path;
+        PGB.output_path = opts.output_path;
 
-        PGB.api.post('/apps', options, function(e, data) {
+        PGB.api.post('/apps', params, function(e, data) {
             if (e) {
                 oncomplete(e);
             } else {
                 PGB.log('App ' + data.id + ' created.');
-                PGB.log('Waiting for ' + platform + ' build...');
-                PGB.poll(data.id, platform, oncomplete);
+                PGB.log('Waiting for ' + opts.platform + ' build...');
+                PGB.poll(data.id, opts.platform, oncomplete);
             }
         });
     },
