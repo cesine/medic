@@ -19,11 +19,9 @@ module.exports = function(specs, callback) {
             gap_versions: gap_versions
         });
 
-        cloneSpecs(specs);
-        callback([]);
+        getSpecs(specs, callback);
     } else if (argv.server) {
-        cloneSpecs(specs);
-        callback([]);
+        getSpecs(specs, callback);
     } else {
         console.log('[BUILD] Getting specs from ' + config.specs_url);
 
@@ -46,31 +44,56 @@ module.exports = function(specs, callback) {
                 }
             }
 
-            cloneSpecs(specs);
-
-            callback([]);
+            getSpecs(specs, callback);
         });
     }
 };
 
-function cloneSpecs(specs) {
-    console.log('[PGB] ' + specs.length + ' specs found - cloning ...');
-
+function getSpecs(specs, cb) {
     specs.forEach(function(spec) {
-
-        var contents = [];
-        if (fs.existsSync(libDir))
-            contents = fs.readdirSync(libDir);
-
-        var cmd = null;
-        if (contents.indexOf(spec.name) == -1) {
-            // Don't have the lib, get it.
-            cmd = 'git clone ' + spec.git + ' ' + path.join(libDir, spec.name) + ' && cd ' + path.join(libDir, spec.name) + ' && git fetch';
-        } else {
-            // Have the lib, update it.
-            cmd = 'cd ' + path.join(libDir, spec.name) + ' && git checkout -- . && git pull';
+        shell.rm('-rf', path.join(libDir, spec.name));
+        if (spec.git) {
+            cloneSpec(spec);
+            cb([]);
+        } else if (spec.zip) {
+            unzipSpec(spec, cb);
         }
-
-        shell.exec(cmd, {silent:true, async:false});
-    });
+    })
 }
+
+function cloneSpec(spec) {
+
+    var contents = [];
+    if (fs.existsSync(libDir))
+        contents = fs.readdirSync(libDir);
+
+    var cmd = null;
+    if (contents.indexOf(spec.name) == -1) {
+        // Don't have the lib, get it.
+        cmd = 'git clone ' + spec.git + ' ' + path.join(libDir, spec.name) + ' && cd ' + path.join(libDir, spec.name) + ' && git fetch';
+    } else {
+        // Have the lib, update it.
+        cmd = 'cd ' + path.join(libDir, spec.name) + ' && git checkout -- . && git pull';
+    }
+
+    shell.exec(cmd, {silent:true, async:false});
+}
+
+function unzipSpec(spec, cb) {
+    console.log('[INIT] Downloading ' + spec.zip);
+    
+    var zip_file = path.join(libDir, spec.name + '.zip');
+    shell.mkdir('-p', libDir);
+
+    var r = request(spec.zip).pipe(fs.createWriteStream(zip_file));
+    r.on('close', function() {
+        console.log('[INIT] Complete, unzipping')
+        var cmd = 'cd ' + libDir + ' && mkdir ' + spec.name + ' && unzip ' + zip_file + ' -d ' + spec.name;
+        shell.exec(cmd, {silent:true, async:false});
+        shell.rm(zip_file);
+        cb([]);
+    });
+
+}
+
+

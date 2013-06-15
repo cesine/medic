@@ -10,7 +10,7 @@ if (typeof platforms == 'string') {
 
 module.exports = function(callback, specs) {
 
-    // TODO: more elaborate hook than just an interval
+    console.log('[RUNNER] ...')
     function runAll() {
 
         platforms.forEach(function(platform) {

@@ -44,22 +44,27 @@ if (argv.server) {
     });
 
     app.post('/medic', auth, function(request, response){
+      console.log('[SRVR] Request received.')
       var params = request.body;
-      if (params.name && params.git && params.gap_versions) {
+      if (params.name && (params.git || params.zip) && params.gap_versions) {
+          console.log('[SRVR] params look OK, running');
           response.send("");    // echo the result back
           run([{
             "name": params.name,
             "tag": "0.4.0",
             "git": params.git,
             "gap_versions": params.gap_versions,
-            "host": params.host || null
+            "host": params.host || null,
+            "zip": params.zip
           }]);
       } else {
+        console.log('[SRVR] Bad params.');
         response.status(400).send('{"error":"your params suck balls"}');
       }
     });
 
     app.get('/*', function(request, response) {
+        console.log('[SRVR] GET request koffed');
         response.status(404).send("'koff.");
     });
 
@@ -76,7 +81,7 @@ if (argv.server) {
 
 function run(specs) {
 
-    console.log
+    console.log('[MEDIC] Starting');
         // clones the repos
     var init = require('./src/builder/init');
 
