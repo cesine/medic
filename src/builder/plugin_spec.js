@@ -46,7 +46,7 @@ module.exports = function(output_location, sha, name, entry_point, app_git, gap_
     doc.getroot().attrib.id = "org.apache.cordova.example";
     // set the phonegap version
     if (gap_version) {
-        doc.getroot().find("gap:preference[@name='phonegap-version']").attrib.value = gap_version;
+        doc.getroot().find("preference[@name='phonegap-version']").attrib.value = gap_version;
     }
     fs.writeFileSync(config_path, doc.write({indent:4}), 'utf-8');
 
