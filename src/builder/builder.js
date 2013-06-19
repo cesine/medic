@@ -30,7 +30,8 @@ function createJob(commits, app_entry_point, stamp, callback) {
                 output_location:tempDir,
                 entry:app_entry_point,
                 sha: stamp,
-                host: commits[lib].host
+                host: commits[lib].host,
+                id: commits[lib].id
             };
 
             // Some jobs might be for all devices, or specific devices
@@ -64,13 +65,14 @@ module.exports = function(app_builder, app_entry_point, static, app_git) {
 
         // get the platform from the commits object
         var platform =  (function() {for (var lib in commits) if (commits.hasOwnProperty(lib)) return lib })();
-        var gap_version =  (function() {for (var lib in commits) if (commits.hasOwnProperty(lib)) return commits[lib].gap_version })();
+        var gap_version = commits[platform].gap_version;
+        var id = commits[platform].id;
 
         var output_dir = path.join(tempDir, platform, 'test');
         shell.rm('-rf', output_dir);
         shell.mkdir('-p', output_dir);
 
-        spec_builder(output_dir, stamp, app_builder, app_entry_point, app_git, gap_version, function(err) {
+        spec_builder(output_dir, stamp, app_builder, id, app_entry_point, app_git, gap_version, function(err) {
             if (err) {
                 throw new Error('Could not build Test App! Aborting!');
             }

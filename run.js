@@ -40,7 +40,10 @@ if (argv.server) {
 
     // Oh so secure.
     var auth = express.basicAuth(function(user, pass) {
-       return (user == config.pgb.username && pass == config.pgb.password);
+        var test = (user == config.pgb.username && pass == config.pgb.password);
+        if (test == true) console.log("User " + user + " authenticated");
+        else console.log("User " + user + " denied!");
+       return test;
     });
 
     app.post('/medic', auth, function(request, response){
@@ -55,7 +58,8 @@ if (argv.server) {
             "git": params.git,
             "gap_versions": params.gap_versions,
             "host": params.host || null,
-            "zip": params.zip
+            "zip": params.zip,
+            "id": params.id
           }]);
       } else {
         console.log('[SRVR] Bad params.');

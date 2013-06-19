@@ -105,7 +105,8 @@
                 timestamp:Math.round(Math.floor((new Date()).getTime() / 1000)),
                 model:device.model || device.name,
                 name: spec_name,
-                phonegap: (typeof window.device == 'object' ? window.device.cordova : null)
+                phonegap: (typeof window.device == 'object' ? window.device.cordova : null),
+                plugin_id: spec_id
             });
         },
         postTests: function(json) {
