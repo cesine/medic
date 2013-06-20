@@ -106,13 +106,14 @@
                 model:device.model || device.name,
                 name: spec_name,
                 phonegap: (typeof window.device == 'object' ? window.device.cordova : null),
-                plugin_id: spec_id
+                plugin_id: spec_info.id,
+                plugin_version: spec_info.version
             });
         },
         postTests: function(json) {
             console.log('posting tests');
             var xhr = new XMLHttpRequest();
-            var doc_id = [json.platform, library_sha, json.version, json.model].map(encodeURIComponent).join('__');
+            var doc_id = [json.plugin_id, json.name, json.plugin_version, json.phonegap, json.platform, json.version, json.model].map(encodeURIComponent).join('__');
             var doc_url = this.server + '/medic_results/' + doc_id;
             xhr.open("PUT", doc_url, true);
             xhr.onreadystatechange=function() {

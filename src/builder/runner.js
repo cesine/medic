@@ -64,7 +64,7 @@ function check_n_queue(spec, platform, callback, devices, gap_version) {
             spec: spec,
             gap_version: gap_version,
             host: spec.host || null,
-            id: spec.id || null
+            info: spec.info || null
         };
 
         var end = n(numDs, function() {

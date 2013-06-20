@@ -47,20 +47,28 @@ if (argv.server) {
     });
 
     app.post('/medic', auth, function(request, response){
+
       console.log('[SRVR] Request received.')
       var params = request.body;
       if (params.name && (params.git || params.zip) && params.gap_versions) {
+
           console.log('[SRVR] params look OK, running');
           response.send("");    // echo the result back
-          run([{
+
+          var spec = {
             "name": params.name,
-            "tag": "0.4.0",
             "git": params.git,
             "gap_versions": params.gap_versions,
             "host": params.host || null,
             "zip": params.zip,
-            "id": params.id
-          }]);
+            "info": {
+                "id": params.id,
+                "version": params.version
+            }
+          };
+
+          run([spec]);
+
       } else {
         console.log('[SRVR] Bad params.');
         response.status(400).send('{"error":"your params suck balls"}');
@@ -114,4 +122,3 @@ function run(specs) {
     });
 
 }
-
