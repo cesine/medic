@@ -86,14 +86,12 @@ if (argv.server) {
 
 } else {
 
-    console.log('[MEDIC] Running.');
+    console.log('[MEDIC] Running static jobs...');
 
     run(config.specs);
 }
 
 function run(specs) {
-
-    console.log('[MEDIC] Starting');
         // clones the repos
     var init = require('./src/builder/init');
 

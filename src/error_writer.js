@@ -22,7 +22,11 @@ var couch = require('./couchdb');
  *   error_writer(platform, sha, version, failure details);
  *   error_writer(platform, sha, version, model, failure, details);
  */
-module.exports = function error_writer(platform, sha, failure, details) {
+module.exports = function error_writer(job, error) {
+
+    console.log(job);
+    return;
+    
     // massage args
     var version, model;
     if (arguments.length == 5) {

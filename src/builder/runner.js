@@ -54,10 +54,10 @@ function check_n_queue(spec, platform, callback, devices, gap_version) {
 
     for (var d in devices) if (devices.hasOwnProperty(d)) numDs++;
     if (numDs > 0) {
+        console.log('creating job in runner');
         var job = {};
         var targets = 0;
         job = {
-            sha:'HEAD',
             platform: platform,
             numDevices:0,
             devices:{},

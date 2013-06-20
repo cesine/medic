@@ -16,7 +16,7 @@ function build_the_queue(q, callback) {
     if (job) {
         job.builder(job, function(err) {
             if (err) {
-                error_writer(job.library, job.sha, 'PGB Build Failure', err.toString().trim());
+                error_writer(job, err.toString().trim());
                 console.error('[BUILDER] Previous build failed, continuing.');
             }
             build_the_queue(q, callback);
@@ -27,15 +27,11 @@ function build_the_queue(q, callback) {
 function createJob(job, app_entry_point, stamp, callback) {
     var miniq = [];
     var lib = job.platform;
-    var job = {
-        library:lib,
-        builder:builders[lib],
-        output_location:tempDir,
-        entry:app_entry_point,
-        sha: stamp,
-        host: job.host,
-        info: job.info
-    };
+
+    job.builder = builders[lib];
+    job.output_location = tempDir;
+    job.entry = app_entry_point;
+    job.sha = stamp;
 
     miniq.push(job);
 

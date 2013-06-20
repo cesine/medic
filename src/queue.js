@@ -32,7 +32,7 @@ q.prototype.__proto__ = events.EventEmitter.prototype;
 
 q.prototype.push = function(j) {
     var r = this.q.push(j);
-    console.log('[QUEUE] [' + this.name + '] SHA ' + j.sha.substr(0,7) + (j.numDevices?' for ' + j.numDevices + ' device(s).':'.') + ' (' + this.q.length + ' jobs in queue)');
+    console.log('[QUEUE] [' + this.name + '] ' + (j.numDevices?' for ' + j.numDevices + ' device(s).':'.') + ' (' + this.q.length + ' jobs in queue)');
     this.emit('push', j);
     return r;
 };
@@ -49,7 +49,7 @@ q.prototype.build = function() {
         job.builder(job, function(err) {
             if (err) {
                 console.log('[QUEUE][' + self.name + '] Job failed: ' + err);
-                error_writer(job, (new Date()).toJSON().substring(0,19).replace(/:/g, "-"), 'Job failed', err);
+                error_writer(job, err);
             } else {
                 console.log('[QUEUE] [' + self.name + '] Job complete.');
             }
