@@ -44,7 +44,7 @@ module.exports = function(platform) {
 
                     if (error) {
                         console.log('[PGB] Build failed (' + error.toString().trim() + ')');
-                        error_writer(pf || "", sha, 'PGB Build Failure - ' + id, error.toString().trim());
+                        //error_writer(pf || "", sha, 'PGB Build Failure - ' + id, error.toString().trim());
                         callback(error);
                         return;
                     }

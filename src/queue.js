@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 var events    = require('events'),
-    updater   = require('./updater'),
+    error_writer = require('./error_writer'),
     builder;
 
 var q = function(name) {
@@ -46,25 +46,20 @@ q.prototype.build = function() {
     var self = this;
     if (job) {
         this.building = true;
-        console.log('[BUILDER] Starting ' + this.name + ' job.');
-        // first should update the necessary libs
+        console.log('[QUEUE] Starting ' + this.name + ' job.');
 
-        // job can be of the form
-        // {'cordova-android':'sha'}, OR
-        // {'cordova-android':
-        //   {
-        //     'sha':'sha',
-        //     'devices':['id1','id2']
-        //   }
-        // }
-        updater(job, function() {
-            var lib = null;
-            for (var p in job) if (job.hasOwnProperty(p)) lib = p;
-            job[lib].builder(job, function() {
-                console.log('[BUILDER] [' + self.name + '] Job complete. (' + self.q.length + ' jobs remaining in queue)');
-                self.building = false;
-                self.build();
-            });
+        var lib = null;
+        for (var p in job) if (job.hasOwnProperty(p)) lib = p;
+        job[lib].builder(job, function(err) {
+            if (err) {
+                console.log('[QUEUE][' + self.name + '] Job failed: ' + err);
+                error_writer(lib, (new Date()).toJSON().substring(0,19).replace(/:/g, "-"), 'Job failed', err);
+            } else {
+                console.log('[QUEUE] [' + self.name + '] Job complete.');
+            }
+            console.log('[QUEUE] Continuing (' + self.q.length + ' jobs remaining in queue)');
+            self.building = false;
+            self.build();
         });
     } else {
         this.building = false;

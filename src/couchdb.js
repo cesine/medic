@@ -97,7 +97,7 @@ db.prototype = {
                                                     else callback(true, r.statusCode);
                                                 }
                                             });
-                                        } else callback(true, r.statusCode);
+                                        } else callback(true, res.statusCode);
                                     }
                                 });
                             } else callback(true, resp.statusCode);
@@ -125,5 +125,5 @@ db.prototype = {
 
 module.exports = {
     build_errors:new db('build_errors'),
-    mobilespec_results:new db('mobilespec_results')
+    mobilespec_results:new db('medic_results')
 };

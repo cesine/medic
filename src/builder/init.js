@@ -73,7 +73,7 @@ function cloneSpec(spec) {
         cmd = 'git clone ' + spec.git + ' ' + path.join(libDir, spec.name) + ' && cd ' + path.join(libDir, spec.name) + ' && git fetch';
     } else {
         // Have the lib, update it.
-        cmd = 'cd ' + path.join(libDir, spec.name) + ' && git checkout -- . && git pull';
+        cmd = 'cd ' + path.join(libDir, spec.name) + ' && git checkout -- . && git pull origin master';
     }
 
     shell.exec(cmd, {silent:true, async:false});
