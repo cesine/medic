@@ -103,15 +103,11 @@ function run(specs) {
     init(specs, function(initial_queue) {
 
         function queueJob(job) {
-            for (var i in job) {
-                if (job.hasOwnProperty(i)) {
-                    var spec = job[i].spec ? job[i].spec.name : default_spec;
-                    var git_url = job[i].spec ? job[i].spec.git : null;
-                    var entry = job[i].spec ? job[i].spec.entry : config.app.entry;
-                    job[i].builder = require('./src/builder/builder')(spec, entry, false, git_url);
-                    queue.push(job);
-                }
-            }
+            var spec = job.spec ? job.spec.name : default_spec;
+            var git_url = job.spec ? job.spec.git : null;
+            var entry = job.spec ? job.spec.entry : config.app.entry;
+            job.builder = require('./src/builder/builder')(spec, entry, false, git_url);
+            queue.push(job);
         }
 
         // init build may return an array of initial jobs to queue

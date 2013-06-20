@@ -10,7 +10,7 @@ if (typeof platforms == 'string') {
 
 module.exports = function(callback, specs) {
 
-    console.log('[RUNNER] ...')
+    console.log('[RUNNER] parsing jobs...')
     function runAll() {
 
         platforms.forEach(function(platform) {
@@ -54,11 +54,11 @@ function check_n_queue(spec, platform, callback, devices, gap_version) {
 
     for (var d in devices) if (devices.hasOwnProperty(d)) numDs++;
     if (numDs > 0) {
-    	var commit = 'HEAD';
         var job = {};
         var targets = 0;
-        job[platform] = {
-            sha:commit,
+        job = {
+            sha:'HEAD',
+            platform: platform,
             numDevices:0,
             devices:{},
             spec: spec,
@@ -69,7 +69,7 @@ function check_n_queue(spec, platform, callback, devices, gap_version) {
 
         var end = n(numDs, function() {
             if (targets > 0) {
-                job[platform].numDevices = targets;
+                job.numDevices = targets;
                 callback(job);
             }
         });
@@ -80,7 +80,7 @@ function check_n_queue(spec, platform, callback, devices, gap_version) {
             var model = device.model;
 
             targets++;
-            job[platform].devices[id] = {
+            job.devices[id] = {
                 version:version,
                 model:model
             }; 

@@ -77,7 +77,7 @@ module.exports = function(platform) {
 
                     var platform_scanner = require('../platforms/' + pf + '/devices');
 
-                    console.log('[PGB][BUILD] Scanning for ' + pf + ' devices')
+                    console.log('[PGB] [BUILD] Scanning for ' + pf + ' devices')
                     platform_scanner(function(err, devices) {
                         if (err) console.log('[BUILD] Error scanning for ' + pf + ' devices: ' + devices);
                         else {

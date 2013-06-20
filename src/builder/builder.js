@@ -24,41 +24,27 @@ function build_the_queue(q, callback) {
     } else callback();
 }
 
-function createJob(commits, app_entry_point, stamp, callback) {
-    var miniq = []; 
-    for (var lib in commits) if (commits.hasOwnProperty(lib)) {
-        if (builders.hasOwnProperty(lib)) {
-            var job = {
-                library:lib,
-                builder:builders[lib],
-                output_location:tempDir,
-                entry:app_entry_point,
-                sha: stamp,
-                host: commits[lib].host,
-                info: commits[lib].info
-            };
+function createJob(job, app_entry_point, stamp, callback) {
+    var miniq = [];
+    var lib = job.platform;
+    var job = {
+        library:lib,
+        builder:builders[lib],
+        output_location:tempDir,
+        entry:app_entry_point,
+        sha: stamp,
+        host: job.host,
+        info: job.info
+    };
 
-            // Some jobs might be for all devices, or specific devices
-            if (typeof commits[lib] == 'object') {
-                job.devices = commits[lib].devices;
-            }
-            miniq.push(job);
-        }
-    }
+    miniq.push(job);
+
     build_the_queue(miniq, callback);
 }
 
 module.exports = function(app_builder, app_entry_point, static, app_git) {
 
-    return function builder(commits, callback) {
-        // commits format:
-        // { cordova-android:'sha'}
-        // OR
-        // { cordova-android:{
-        //     sha:'sha',
-        //     devices:[]
-        //   }
-        // }
+    return function builder(job, callback) {
 
         var stamp = (new Date()).toJSON().substring(0,19).replace(/:/g, "-");
         try {
@@ -68,9 +54,9 @@ module.exports = function(app_builder, app_entry_point, static, app_git) {
         }
 
         // get the platform from the commits object
-        var platform =  (function() {for (var lib in commits) if (commits.hasOwnProperty(lib)) return lib })();
-        var gap_version = commits[platform].gap_version;
-        var info = commits[platform].info;
+        var platform =  job.platform;
+        var gap_version = job.gap_version;
+        var info = job.info;
 
         var output_dir = path.join(tempDir, platform, 'test');
         shell.rm('-rf', output_dir);
@@ -82,7 +68,7 @@ module.exports = function(app_builder, app_entry_point, static, app_git) {
                 return;
             } else {
                 console.log('[PGB] Test app prepared.');
-                createJob(commits, app_entry_point, stamp, callback);
+                createJob(job, app_entry_point, stamp, callback);
             }
         });
     }

@@ -30,12 +30,10 @@ var q = function(name) {
 
 q.prototype.__proto__ = events.EventEmitter.prototype;
 
-q.prototype.push = function(i) {
-    var job_desc = '';
-    for (var p in i) if (i.hasOwnProperty(p)) job_desc = p;
-    var r = this.q.push(i);
-    console.log('[QUEUE] [' + this.name + '] SHA ' + i[job_desc].sha.substr(0,7) + (i[job_desc].numDevices?' for ' + i[job_desc].numDevices + ' device(s).':'.') + ' (' + this.q.length + ' jobs in queue)');
-    this.emit('push', i);
+q.prototype.push = function(j) {
+    var r = this.q.push(j);
+    console.log('[QUEUE] [' + this.name + '] SHA ' + j.sha.substr(0,7) + (j.numDevices?' for ' + j.numDevices + ' device(s).':'.') + ' (' + this.q.length + ' jobs in queue)');
+    this.emit('push', j);
     return r;
 };
 
@@ -48,12 +46,10 @@ q.prototype.build = function() {
         this.building = true;
         console.log('[QUEUE] Starting ' + this.name + ' job.');
 
-        var lib = null;
-        for (var p in job) if (job.hasOwnProperty(p)) lib = p;
-        job[lib].builder(job, function(err) {
+        job.builder(job, function(err) {
             if (err) {
                 console.log('[QUEUE][' + self.name + '] Job failed: ' + err);
-                error_writer(lib, (new Date()).toJSON().substring(0,19).replace(/:/g, "-"), 'Job failed', err);
+                error_writer(job, (new Date()).toJSON().substring(0,19).replace(/:/g, "-"), 'Job failed', err);
             } else {
                 console.log('[QUEUE] [' + self.name + '] Job complete.');
             }
@@ -78,8 +74,7 @@ function queue(app_builder, app_entry_point, static) {
 
 queue.prototype = {
     push:function(job) {
-        var lib = null;
-        for (var p in job) if (job.hasOwnProperty(p)) lib = p;
+        var lib = job.platform;
         if (lib && lib in platform_queue) {
             platform_queue[lib].push(job);
         }
