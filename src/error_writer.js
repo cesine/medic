@@ -24,8 +24,6 @@ var couch = require('./couchdb');
  */
 module.exports = function error_writer(job, error) {
 
-    console.log(job);
-
     // generate couch doc
     var doc = {
         sha:            job.sha,

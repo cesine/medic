@@ -31,7 +31,6 @@ function createJob(job, app_entry_point, stamp, callback) {
     job.builder = builders[lib];
     job.output_location = tempDir;
     job.entry = app_entry_point;
-    job.sha = stamp;
 
     miniq.push(job);
 
@@ -53,6 +52,7 @@ module.exports = function(app_builder, app_entry_point, static, app_git) {
         var platform =  job.platform;
         var gap_version = job.gap_version;
         var info = job.info;
+        job.sha = stamp;
 
         var output_dir = path.join(tempDir, platform, 'test');
         shell.rm('-rf', output_dir);

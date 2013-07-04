@@ -5,6 +5,7 @@ var request = require('request'),
     fs      = require('fs'),
     argv    = require('optimist').argv,
     config  = require('../../config'),
+    aws     = require('aws-sdk'),
     libDir  = path.join(__dirname, '..', '..', 'lib');
 
 // Runs some initializations like retrieving the specs list
@@ -56,7 +57,11 @@ function getSpecs(specs, cb) {
             cloneSpec(spec);
             cb([]);
         } else if (spec.zip) {
-            unzipSpec(spec, cb);
+            if (spec.zip.match(/s3.amazonaws.com/)) {
+                unzipFromS3(spec, cb);
+            } else {
+                unzipFromURL(spec, cb);
+            }
         }
     })
 }
@@ -79,7 +84,39 @@ function cloneSpec(spec) {
     shell.exec(cmd, {silent:true, async:false});
 }
 
-function unzipSpec(spec, cb) {
+function unzipFromS3(spec, cb) {
+    console.log('[INIT] Downloading from s3 ' + spec.zip);
+
+    aws.config.accessKeyId = config.accessKeyId;
+    aws.config.secretAccessKey = config.secretAccessKey;
+    aws.config.region = 'us-east-1';
+
+    var r = spec.zip.match(/(?:\/\/s3\.amazonaws.com\/(.*)\/([^\/]+))/);
+    var bucket = r[1];
+    var id = r[2];
+
+    var zip_file = path.join(libDir, spec.name + '.zip');
+    shell.mkdir('-p', libDir);
+    var file = fs.createWriteStream(zip_file);
+
+    var s3 = new aws.S3();
+    var params = {
+        "Bucket": bucket,
+        "Key": id
+    };
+
+    s3.getObject(params).
+    on('httpData', function(chunk) { 
+        file.write(chunk); 
+    }).on('httpDone', function() { 
+        file.end(); 
+        unzip(zip_file, spec.name);
+        cb([]);
+    }).send();
+
+}
+
+function unzipFromURL(spec, cb) {
     console.log('[INIT] Downloading ' + spec.zip);
     
     var zip_file = path.join(libDir, spec.name + '.zip');
@@ -87,13 +124,16 @@ function unzipSpec(spec, cb) {
 
     var r = request(spec.zip).pipe(fs.createWriteStream(zip_file));
     r.on('close', function() {
-        console.log('[INIT] Complete, unzipping')
-        var cmd = 'cd ' + libDir + ' && mkdir ' + spec.name + ' && unzip ' + zip_file + ' -d ' + spec.name;
-        shell.exec(cmd, {silent:true, async:false});
-        shell.rm(zip_file);
+        unzip(zip_file, spec.name);
         cb([]);
     });
 
 }
 
+function unzip(file, dirName) {
+        console.log('[INIT] unzipping')
+        var cmd = 'cd ' + libDir + ' && mkdir ' + dirName + ' && unzip ' + file + ' -d ' + dirName;
+        shell.exec(cmd, {silent:true, async:false});
+        shell.rm(file);
+}
 
