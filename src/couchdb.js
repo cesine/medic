@@ -120,10 +120,64 @@ db.prototype = {
             });
             return true;
         } else return false;
+    },
+
+    watchQueue: function(callback) {
+        var self = this;
+        self.popQueue(callback);
+        setInterval(function() {
+            self.popQueue(callback);
+        }, 5000);
+    },
+
+    popQueue: function(callback) {
+        //console.log('[COUCH] Checking queue');
+        process.stdout.write(".");
+        var self = this;
+        this.query_view('queue','by_timestamp?descending=false', function(err, data) {
+
+            if (err) {
+                console.log('[COUCH] failed to quey queue');
+                return;
+            }
+
+            if (data.rows.length == 0) {
+                callback([]);
+            } else {
+                var docs = [];
+                data.rows.forEach(function(doc) {
+                    docs.push(doc.value);
+                })
+                self.bulkRemove(data.rows, function() {
+                    callback(docs);
+                });
+            }
+
+        })
+    },
+
+    bulkRemove: function(docs, callback){
+      var docs = docs.map(function(doc){ 
+        doc.value._deleted = true; 
+        return doc.value;
+      });
+
+      request({
+        url: this.db_url + "/_bulk_docs",
+        method: "POST",
+        json: { docs: docs },
+      }, function(e,r,data) {
+        if (e) {
+            console.log('[COUCH] ERROR: failed to delete from queue');
+        }
+        callback();
+      });
+
     }
 };
 
 module.exports = {
     errors:new db('build_errors'),
-    results:new db('medic_results')
+    results:new db('medic_results'),
+    queue:new db('medic_queue')
 };

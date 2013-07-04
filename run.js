@@ -84,6 +84,32 @@ if (argv.server) {
     console.log("Listening to http://" + config.api_host.address + ":" + config.api_host.port + "/");
 
 
+} else if (argv.queue) {
+
+    console.log('[MEDIC] Watching couch queue.');
+
+    require('./src/couchdb').queue.watchQueue(function(jobs) {
+
+      var specs = jobs.map(function(j) {
+          return {
+            "name": j.name,
+            "git": j.git,
+            "gap_versions": j.gap_versions,
+            "host": j.host || null,
+            "zip": j.zip,
+            "info": {
+                "id": j.id,
+                "version": j.version
+            }
+          };
+    
+      });
+
+      run(specs);
+
+    });
+
+
 } else {
 
     console.log('[MEDIC] Running static jobs...');

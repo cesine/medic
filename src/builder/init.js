@@ -20,7 +20,7 @@ module.exports = function(specs, callback) {
         });
 
         getSpecs(specs, callback);
-    } else if (argv.server) {
+    } else if (argv.server || argv.queue) {
         getSpecs(specs, callback);
     } else {
         console.log('[BUILD] Getting specs from ' + config.specs_url);
