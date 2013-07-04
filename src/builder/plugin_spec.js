@@ -43,6 +43,9 @@ module.exports = function(output_location, timestamp, name, spec_info, entry_poi
             // add the plugin
             doc = new et.ElementTree(et.XML(fs.readFileSync(config_path, 'utf-8')));
             doc.getroot().find("gap:plugin").attrib.name = name;
+            if (spec_info.version) {
+                doc.getroot().find("gap:plugin").attrib.version = spec_info.version;
+            }
             fs.writeFileSync(config_path, doc.write({indent:4}), 'utf-8');
         }
 

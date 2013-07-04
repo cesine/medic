@@ -22,7 +22,6 @@ module.exports = function(specs, callback) {
 
         getSpecs(specs, callback);
     } else if (argv.server || argv.queue) {
-        console.log('.');
         getSpecs(specs, callback);
     } else {
         console.log('[BUILD] Getting specs from ' + config.specs_url);
@@ -53,6 +52,7 @@ module.exports = function(specs, callback) {
 
 function getSpecs(specs, cb) {
     specs.forEach(function(spec) {
+        console.log('.');
         shell.rm('-rf', path.join(libDir, spec.name));
         if (spec.git) {
             cloneSpec(spec);
@@ -132,9 +132,14 @@ function unzipFromURL(spec, cb) {
 }
 
 function unzip(file, dirName) {
-        console.log('[INIT] unzipping')
+        console.log('[INIT] unzipping.')
         var cmd = 'cd ' + libDir + ' && mkdir ' + dirName + ' && unzip ' + file + ' -d ' + dirName;
-        shell.exec(cmd, {silent:true, async:false});
-        shell.rm(file);
+        var result = shell.exec(cmd, {silent:true, async:false});
+
+        if (result.code != 0) {
+            console.log("[UNZIP] [ERROR] " + result.output.substring(0, 200));
+        } else {
+            shell.rm(file);
+        }
 }
 
