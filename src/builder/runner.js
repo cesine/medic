@@ -64,7 +64,8 @@ function check_n_queue(spec, platform, callback, devices, gap_version) {
             spec: spec,
             gap_version: gap_version,
             host: spec.host || null,
-            info: spec.info || null
+            info: spec.info || null,
+            timestamp: spec.timestamp || (new Date()).toJSON().substring(0,19).replace(/:/g, "-")
         };
 
         var end = n(numDs, function() {

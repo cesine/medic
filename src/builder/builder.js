@@ -24,7 +24,7 @@ function build_the_queue(q, callback) {
     } else callback();
 }
 
-function createJob(job, app_entry_point, stamp, callback) {
+function createJob(job, app_entry_point, callback) {
     var miniq = [];
     var lib = job.platform;
 
@@ -41,7 +41,9 @@ module.exports = function(app_builder, app_entry_point, static, app_git) {
 
     return function builder(job, callback) {
 
-        var stamp = (new Date()).toJSON().substring(0,19).replace(/:/g, "-");
+        var stamp = job.timestamp || (new Date()).toJSON().substring(0,19).replace(/:/g, "-");
+
+        // if there's a custom spec builder (see mobile_spec) use it. otherwise we'll assume its a plugin
         try {
             spec_builder = require('./' + app_builder);
         } catch (ex) {
@@ -52,7 +54,6 @@ module.exports = function(app_builder, app_entry_point, static, app_git) {
         var platform =  job.platform;
         var gap_version = job.gap_version;
         var info = job.info;
-        job.sha = stamp;
 
         var output_dir = path.join(tempDir, platform, 'test');
         shell.rm('-rf', output_dir);
@@ -64,7 +65,7 @@ module.exports = function(app_builder, app_entry_point, static, app_git) {
                 return;
             } else {
                 console.log('[PGB] Test app prepared.');
-                createJob(job, app_entry_point, stamp, callback);
+                createJob(job, app_entry_point, callback);
             }
         });
     }

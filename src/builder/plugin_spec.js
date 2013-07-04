@@ -6,7 +6,7 @@ var shell     = require('shelljs'),
 
 var jasmineReporter = path.join(__dirname, 'app_files', 'jasmine-jsreporter.js');
 
-module.exports = function(output_location, sha, name, spec_info, entry_point, app_git, gap_version, callback) {
+module.exports = function(output_location, timestamp, name, spec_info, entry_point, app_git, gap_version, callback) {
 
     try {
         console.log('[PGB] Preparing plugin spec: ' + name + ' @ ' + gap_version);
@@ -26,10 +26,10 @@ module.exports = function(output_location, sha, name, spec_info, entry_point, ap
         // copy jasmine reporter into output_location location
         shell.cp('-Rf', jasmineReporter, output_location);
         
-        // drop sha to the top of the jasmine reporter
+        // drop timestamp to the top of the jasmine reporter
         if (!spec_info) spec_info = {};
         var tempJasmine = path.join(output_location, 'jasmine-jsreporter.js');
-        var jsString = "var library_sha = '" + sha + "'; \n    var spec_name = '" + name + "';\n    var spec_info = " + JSON.stringify(spec_info) + ";\n";
+        var jsString = "var timestamp = '" + timestamp + "'; \n    var spec_name = '" + name + "';\n    var spec_info = " + JSON.stringify(spec_info) + ";\n";
         fs.writeFileSync(tempJasmine, jsString + fs.readFileSync(tempJasmine, 'utf-8'), 'utf-8');
 
         var config_path = path.join(output_location, 'config.xml');

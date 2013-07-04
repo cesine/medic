@@ -12,12 +12,12 @@ module.exports = function(platform) {
     return function(job, callback) {
 
         var output      = job.output_location,
-            sha         = job.sha,
+            timestamp   = job.timestamp,
             devices     = job.devices,
             entry_point = job.entry;
 
         function log(msg) {
-            console.log('[' + platform + '] ' + msg + ' (stamp: ' + sha + ')');
+            console.log('[' + platform + '] ' + msg + ' (stamp: ' + timestamp + ')');
         }
 
         // compile
@@ -44,7 +44,6 @@ module.exports = function(platform) {
 
                     if (error) {
                         console.log('[PGB] Build failed (' + error.toString().trim() + ')');
-                        //error_writer(pf || "", sha, 'PGB Build Failure - ' + id, error.toString().trim());
                         callback(error);
                         return;
                     }
@@ -82,7 +81,7 @@ module.exports = function(platform) {
                         if (err) console.log('[BUILD] Error scanning for ' + pf + ' devices: ' + devices);
                         else {
                             var deploy = require('../platforms/' + pf + '/deploy')
-                            deploy(sha, devices, binpath, package_id, callback);
+                            deploy(timestamp, devices, binpath, package_id, callback);
                         }
                     });
 

@@ -61,6 +61,7 @@ if (argv.server) {
             "gap_versions": params.gap_versions,
             "host": params.host || null,
             "zip": params.zip,
+            "timestamp": params.job_created ||  (new Date()).toJSON().substring(0,19).replace(/:/g, "-"),
             "info": {
                 "id": params.id,
                 "version": params.version
@@ -97,6 +98,7 @@ if (argv.server) {
             "gap_versions": j.gap_versions,
             "host": j.host || null,
             "zip": j.zip,
+            "timestamp": j.timestamp ||  (new Date()).toJSON().substring(0,19).replace(/:/g, "-"),
             "info": {
                 "id": j.id,
                 "version": j.version
