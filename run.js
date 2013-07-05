@@ -120,27 +120,19 @@ if (argv.server) {
 }
 
 function run(specs) {
-        // clones the repos
-    var init = require('./src/builder/init');
 
     // the runner, well, runs
     var runner = require('./src/builder/runner');
 
-    init(specs, function(initial_queue) {
+    function queueJob(job) {
+        var spec = job.spec ? job.spec.name : default_spec;
+        var git_url = job.spec ? job.spec.git : null;
+        var entry = job.spec ? job.spec.entry : config.app.entry;
+        job.builder = require('./src/builder/builder')(spec, entry, false, git_url);
+        queue.push(job);
+    }
 
-        function queueJob(job) {
-            var spec = job.spec ? job.spec.name : default_spec;
-            var git_url = job.spec ? job.spec.git : null;
-            var entry = job.spec ? job.spec.entry : config.app.entry;
-            job.builder = require('./src/builder/builder')(spec, entry, false, git_url);
-            queue.push(job);
-        }
-
-        // init build may return an array of initial jobs to queue
-        initial_queue.forEach(queueJob);
-
-        // start listening
-        runner(queueJob, specs);
-    });
+    // start listening
+    runner(queueJob, specs);
 
 }

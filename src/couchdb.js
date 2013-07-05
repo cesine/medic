@@ -29,7 +29,7 @@ function db(name) {
     this.name = name;
     this.db_url = couch + '/' + this.name;
     this.is_following = false;
-    this.interval = 10000;
+    this.interval = 5000;
 }
 
 db.prototype = {
@@ -125,9 +125,18 @@ db.prototype = {
 
     watchQueue: function(callback) {
         var self = this;
-        self.popQueue(callback);
+        self.popQueue(function(docs) {
+            if (docs.length > 0) {
+                callback(docs);
+            }
+        });
+
         setInterval(function() {
-            self.popQueue(callback);
+            self.popQueue(function(docs) {
+                if (docs.length > 0) {
+                    callback(docs);
+                }
+            });
         }, self.interval);
     },
 

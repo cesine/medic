@@ -41,7 +41,6 @@ var PGB = {
                 file: opts.zip_path
             }
         };
-        PGB.output_path = opts.output_path;
 
         PGB.api.post('/apps', params, function(e, data) {
             if (e) {
@@ -49,23 +48,23 @@ var PGB = {
             } else {
                 PGB.log('App ' + data.id + ' created.');
                 PGB.log('Waiting for ' + opts.platform + ' build...');
-                PGB.poll(data.id, opts.platform, oncomplete);
+                PGB.poll(data.id, opts.platform, opts.output_path, oncomplete);
             }
         });
     },
 
-    poll: function(id, platform, oncomplete) {
+    poll: function(id, platform, output_path, oncomplete) {
         PGB.checkStatus(id, function(e, data) {
             if (e) {
                 console.log(e);
                 oncomplete(e, id, platform);
             } else if (data.status[platform] == 'pending') {
                 setTimeout(function() {
-                    PGB.poll(id, platform, oncomplete);
+                    PGB.poll(id, platform, output_path, oncomplete);
                 }, 2000);
             } else if (data.status[platform] == 'complete' ) {
                 PGB.log(platform + ' build complete.');
-                PGB.download(id, platform, oncomplete);
+                PGB.download(id, platform, output_path, oncomplete);
             } else if (data.error && data.error[platform]) {
                 oncomplete(data.error[platform], id, platform);
             } else {
@@ -78,9 +77,9 @@ var PGB = {
         PGB.api.get('/apps/' + id, cb);
     },
 
-    download: function(id, platform, oncomplete) {
+    download: function(id, platform, output_path, oncomplete) {
         PGB.log('Downloading for ' + platform + '...');
-        var binpath = path.join(PGB.output_path, 'app-' + id + '.' + PGB.extension(platform));
+        var binpath = path.join(output_path, 'app-' + id + '.' + PGB.extension(platform));
 
         var r = PGB.api.get('/apps/' + id + '/' + platform).pipe(fs.createWriteStream(binpath));
         r.on('close', function() {

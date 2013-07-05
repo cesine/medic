@@ -41,11 +41,10 @@ module.exports = function error_writer(job, error) {
     var doc_id_array = [doc.plugin_id, doc.platform, doc.phonegap, job.info.version]; 
 
     var doc_id = doc_id_array.map(encodeURIComponent).join('__');
-    console.log(doc_id);
 
-    couch.results.clobber(doc_id, doc, function(resp) {
-        if (resp.error) {
-            console.error('[COUCH ERROR] Saving doc with id ' + doc_id);
+    couch.results.clobber(doc_id, doc, function(err, data) {
+        if (err) {
+            console.error('[COUCH ERROR] Saving doc with id ' + doc_id + ' (' + data + ')');
         }
     });
 }

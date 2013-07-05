@@ -14,14 +14,13 @@ module.exports = function(output_location, timestamp, name, spec_info, entry_poi
         shell.rm('-Rf', output_location);
         shell.mkdir('-p', output_location);
         var tempStart = path.join(output_location, 'index.html');
-        var libDir = path.join(__dirname, '..', '..', 'lib');
-        var lib = name;
+        var libDir = path.join(output_location, '..');
 
         // copy relevant bits of spec project to output_location location
-        if (!fs.existsSync(path.join(libDir, lib, 'spec'))) {
+        if (!fs.existsSync(path.join(libDir, name, 'spec'))) {
             throw new Error('No spec directory!');
         }
-        shell.cp('-Rf', path.join(libDir, lib, 'spec', '*'), output_location);
+        shell.cp('-Rf', path.join(libDir, name, 'spec', '*'), output_location);
 
         // copy jasmine reporter into output_location location
         shell.cp('-Rf', jasmineReporter, output_location);
