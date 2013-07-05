@@ -26,7 +26,7 @@ module.exports = function error_writer(job, error) {
 
     // generate couch doc
     var doc = {
-        sha:            job.sha,
+        sha:            job.timestamp || job.sha,
         plugin_id:      job.info ? job.info.id : 'noid',
         platform:       job.platform,
         error:          error,
