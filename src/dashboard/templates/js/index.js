@@ -9,8 +9,12 @@ function XHR(url, cb) {
        if (xhr.readyState==4) {
            if (xhr.status==200) {
                cb(false, JSON.parse(xhr.responseText));
+               // returns (bool) error, json packet of commits
            } else {
                cb(true, xhr);
+               // looking at the go() function, if we send "true" it just reloads the page,
+               // so we probably don't need to return XHR, can probably return anything
+               // we must be returnign the XHR so we can check the status and see what the problem was
            }
        }
     };
@@ -39,6 +43,12 @@ function getFailures(results) {
     return fs;
 }
 function getPercentage(results) {
+    if( results == null){
+        // Think this might be causing a problem; the range error that Chrome gives is liek too much recursion errors
+        console.log("[index.js] - getPercentage - results is null!");
+        return 0;
+    }
+
     if (results.tests) {
         var total = results.tests;
         var failed = results.num_fails;
@@ -48,18 +58,25 @@ function getPercentage(results) {
         for (var sub in results) if (results.hasOwnProperty(sub)) {
             ps.push(getPercentage(results[sub]));
         }
-        return (ps.reduce(function(a,b) { return a+b; }) / ps.length);
+        return (ps.reduce(function(a,b) { return a+b; }) / ps.length);  // hmmm....
     }
 }
 function renderDashboardRow(platform, date, lastSha, lastResults, secondSha, secondResults) {
+try{
+    console.log("[index.js] - renderDashboardRow()");
     var colors = Highcharts.getOptions().colors;
-    var lib = 'cordova-' + platform;
+    var lib = 'cordova-' + platform;       // used for git, like cordova-android; not for the .js file so seems okay
     // date column
     $(platform + '_commit_date').innerText = date;
     var date_anchor = $(platform + '_last_commit');
     date_anchor.innerText = lastSha.substr(0,7);
     date_anchor.setAttribute('href', 'https://git-wip-us.apache.org/repos/asf?p=' + lib + '.git;a=commit;h=' + lastSha);
     // pass column
+    console.log("[index.js] - calling getPercentage with lastRules and secondResults, which are:");
+        console.log(JSON.stringify(lastResults));   // looks liek currently these are errors
+                                                    // almost looks liek its the XHR call itself
+        console.log(JSON.stringify(secondResults));
+
     var current_percent = getPercentage(lastResults);
     var last_percent = getPercentage(secondResults);
     var p = $(platform + '_last_percentage');
@@ -162,22 +179,68 @@ function renderDashboardRow(platform, date, lastSha, lastResults, secondSha, sec
             innerSize:'60%'
         }]
     });
+}catch(e){
+
+    console.log("[index.js] - renderDashboardRow - error!");
+    console.log(e);
+}
 }
 function go() {
-    XHR("/api/commits/recent", function(err, commits) {
+        console.log("Okay GO!"); 
+        // First, get teh 20 most recent commits for each platform by calling (api.js)
+        // Then get the most recent and second most recent SHA commits for each platform
+        //   and use this to call api/resuults?platform="{each platform}"&sha=
+        //      and then with these most recent SHA's, call renderDashboardRow; no idea what this does (yet) ;)
+
+        XHR("/api/commits/recent", function(err, commits) {
+                // commits variable must be geting fileld in by the XHR
+                // maybe that's where we'll find the call to get 20 commits
         if (err) {
             // if api isnt ready just reload in 5 seconds :P
             setTimeout(function() {
                 window.location.reload();
             }, 5000);
         } else {
+            console.log("[index.js - go()]  XHR success for recent commits, commits are:" + commits);
+            console.log(commits);
             for (var repo in commits) if (commits.hasOwnProperty(repo)) (function(lib) {
+
+                //mike added thsi to skip ios so we just focus on android
+                if( lib === 'cordova-ios'){
+                    //console.log("[index.js] - skilling cordova-ios!");
+                    return;
+                }
+
                 var platform = lib.substr('cordova-'.length);
+                    console.log("[index.js] - we have recent commits, looping thru each repo, platform is:    " + platform);
+
                 var most_recent_sha = commits[lib].shas[0];
                 var second_recent_sha = commits[lib].shas[1];
+
+                console.log("[index.js]  most recent and second most recent SHA");
+                console.log(most_recent_sha);
+                console.log(second_recent_sha);
+
                 var most_recent_date = moment(parseInt(commits[lib].dates[0])*1000).fromNow();
                 XHR("api/results?platform=" + platform + "&sha=" + most_recent_sha, function(err, last_results) {
+                    // mike adding this stuf
+                    if( err){
+                        console.log("[index.js] - ERROR - error getting most recent results!!");
+                        console.log(err);
+                        console.log("think that this is messing up getPercentage because there is unexpected data here, since in xhr() we return the json anyway...");
+                        console.log(last_results);
+                        console.log("-----------------------");
+
+                    }else{
+
+                        console.log("[index.js] - [xhr] - call to get most_recent_sha worked");
+                    }
+
                     XHR("api/results?platform=" + platform + "&sha=" + second_recent_sha, function(err, second_results) {
+                        if( err){
+                            console.log("[index.js] ------------------- ERROR 2 - error getting second most recent sha!: " + second_recent_sha);
+
+                        }
                         renderDashboardRow(platform, most_recent_date, most_recent_sha, last_results, second_recent_sha, second_results);
                     });
                 });
@@ -188,7 +251,7 @@ function go() {
         tested_commits = commits;
         XHR("/api/results", function(err, res) {
             results = res;
-            render('cordova-ios');
+            //render('cordova-ios');
             render('cordova-android');
         });
     });

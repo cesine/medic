@@ -34,12 +34,18 @@ function db(name) {
 db.prototype = {
     get:function(id, callback) {
         // Gets a specific document by id
-
+        console.log("[COUCH-MIKE]   getting results for: " + id);
         var db = this;
         var url = this.db_url + '/' + id;
         request.get(url, function(error, response, body) {
-            if (error) callback(error);
-            else {
+            if (error) {
+                console.log("[COUCH-MIKE::: ERROR] - There was ane rror getting the db!");
+
+                callback(error);
+            }else {
+                console.log("[COUCH-MIKE] - successfully got this specific thing, url:" + url + ", status code: " + response.statusCode + "and the body json'ed is:");
+                console.log(JSON.parse(body));
+                
                 if (response.statusCode == 200) callback(false, JSON.parse(body));
                 else if (response.statusCode == 404) callback(true, 404);
                 else callback(true, response.statusCode);
@@ -48,9 +54,9 @@ db.prototype = {
     },
     query_view:function(design, view, callback) {
         // Queries a view.
-        
         var db = this;
         var url = this.db_url + '/_design/' + design + '/_view/' + view;
+        //console.log("[MIKE _ COUCH _ QUERY]   - querying a view, url is: " + url);
 
         request.get(url, function(error, response, body) {
             if (error) callback(error);
@@ -66,6 +72,7 @@ db.prototype = {
         var db = this;
         var url = this.db_url + '/' + id;
         
+        console.log("[MIKE - COUCH - CLOBBER]  + url: " + url);
         request.put({
             url:url,
             json:document

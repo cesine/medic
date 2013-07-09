@@ -21,9 +21,15 @@ module.exports = function apache_gitpubsub_parser(callback) {
     var s = new Stream();
     s.writable = true;
     s.write = function(data) {
+	//console.log('[MIKE] - incoming data is: ' + data);
+
         try {
             var json = data.toString();
-            json = json.substr(0,json.length-3); // get rid of trailing comma
+		//console.log('[MIKE]  json is:' + json);
+
+            // json = json.substr(0,json.length-3); // get rid of trailing comma
+			// this is slightly wrong
+
             json = JSON.parse(json);
             if (json.stillalive) return true; // if its just a keepalive ping ignore it
             if (json.commit) {

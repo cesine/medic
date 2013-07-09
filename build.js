@@ -151,7 +151,7 @@ new bootstrap(app_git, app_builder).go(function() {
                         // handle commit bunches
                         // number of most recent commits including newest one to check for queueing results.
                         // since you can commit multiple times locally and push multiple commits up to repo, this ensures we have decent continuity of results
-                        var num_commits_back_to_check = 5;
+                        var num_commits_back_to_check = config.numberOfCommits; // Mike added
                         var commits = commit_list.recent(project, num_commits_back_to_check).shas;
                         check_n_queue(project, commits); 
                     });
@@ -162,7 +162,12 @@ new bootstrap(app_git, app_builder).go(function() {
             // queue up builds for any missing recent results for HEAD platforms too
             head_platforms.forEach(function(platform) {
                 if (should_build[platform]) {
-                    var commits = commit_list.recent(platform, 10).shas;
+                    var commits = commit_list.recent(platform, config.numberOfCommits).shas;    // mike added
+                    console.log("[MIKE] - check_n_queue for commits on head_platforms, commits arrray: " + commits);
+                    //console.log("lol changing to 1 though");
+                    //commits = 1;
+                    //commits = commits[0];   //take only a single commit, not sure if it'll be most recent or not. 
+                    //console.log("[MIKE] - commits is now:" + commits);
                     check_n_queue(platform, commits);
                 }
             });
@@ -200,6 +205,7 @@ function check_n_queue(repo, commits) {
     console.log('[MEDIC] Checking ' + repo + '\'s ' + commits.length + ' most recent commit(s) for results on your couch...');
     var platform = repo.substr(repo.indexOf('-')+1);
     // TODO: figure out ios device scanning. issue: determine what model and version connected ios devices are running. until then, we can't queue ios builds on devices that we are missing results for, so we look at ios commits with no results and queue those up.
+    console.log("[Medic] - platform is:" + platform);   
     if (repo == 'cordova-ios') {
         // look at latest commits and see which ones have no results
         commits.forEach(function(commit) {
@@ -229,6 +235,8 @@ function check_n_queue(repo, commits) {
                 var numDs = 0;
                 for (var d in devices) if (devices.hasOwnProperty(d)) numDs++;
                 if (numDs > 0) {
+                    console.log("[MIKE] - build.js - creating jobs for these commits");
+
                     commits.forEach(function(commit) {
                         var job = {};
                         var targets = 0;
@@ -238,6 +246,7 @@ function check_n_queue(repo, commits) {
                             devices:{}
                         };
                         var end = n(numDs, function() {
+                                console.log("[MIKE-BUILD] - end(), so ading this job to the queue")
                             if (targets > 0) {
                                 job[repo].numDevices = targets;
                                 queue.push(job);
@@ -251,6 +260,7 @@ function check_n_queue(repo, commits) {
                             couch.mobilespec_results.get(couch_id, function(err, res_doc) {
                                 if (err && res_doc == 404) {
                                     // Don't have results for this device!
+                                    console.log("[MIKE - ERROR] error, dont have results for thsi device")
                                     targets++;
                                     job[repo].devices[id] = {
                                         version:version,

@@ -32,7 +32,7 @@ module.exports = function(output_location, static_path, sha, devices, entry_poin
         shell.cp('-rf', path.join(static_path, '*'), output_location);
     }
 
-    /*
+    
     // copy jasmine reporter into output_location location
     shell.cp('-f', jasmineReporter, output_location);
     
@@ -44,6 +44,6 @@ module.exports = function(output_location, static_path, sha, devices, entry_poin
     fs.writeFileSync(tempAll, fs.readFileSync(tempAll, 'utf-8').replace(/<script type=.text.javascript. src=.\.\..html.TrivialReporter\.js.><.script>/, '<script type="text/javascript" src="../html/TrivialReporter.js"></script><script type="text/javascript" src="../../jasmine-jsreporter.js"></script>'), 'utf-8');
     fs.writeFileSync(tempAll, fs.readFileSync(tempAll, 'utf-8').replace(/jasmine.HtmlReporter.../, 'jasmine.HtmlReporter(); var jr = new jasmine.JSReporter("' + config.couchdb.host + '");'), 'utf-8');
     fs.writeFileSync(tempAll, fs.readFileSync(tempAll, 'utf-8').replace(/addReporter.htmlReporter../, 'addReporter(htmlReporter);jasmineEnv.addReporter(jr);'), 'utf-8');
-    */
+    
     callback();
 }

@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 var http                   = require('http'),
-    url                    = require('url'),
+    url                    = require('url'),    // this must be some node package
     fs                     = require('fs'),
     path                   = require('path'),
     mime                   = require('mime'),
@@ -28,6 +28,7 @@ var boot_start = new Date().getTime();
 
 // Different way of doing routes :P
 function not_found(res, msg) {
+        console.log("[dashbaord] - not found!");
     res.writeHead(404, {
         "Content-Type":"application/json"
     });
@@ -42,9 +43,22 @@ function routeApi(resource) {
     return function(req, res) {
         try {
             console.log('[HTTP] API request for ' + resource + '.');
+            console.log('[http] - dashboard - want to parse the request url; req.url is:' + req.url);
+            // req.url is something like:  /api/commits/recent  || /api/commits/tested || /api/results?platform=android&sha=9895kj234h34
             var queries = url.parse(req.url, true).query;
-            var json = api[resource];
+
+            console.log("[http] - queries is:" + JSON.stringify(queries));           // this is becoming {} for commits/recent and /commits/tested....but for results, its:
+                                            //    {platform:'android',   sha: '4345j3l4kj34j3;'}
+            // what is url.parse.query? ans: a node.js module that lets us get specific parts of the query, great
+
+            var json = api[resource];   // from api.js exports; there is none for /recent/ or /tested/ ....
+            //console.log("[http] - json = api[resouce] ===" + JSON.stringify(json));
+            // this already contains SHAs for cordova-android, cordova-ios, including the dates of them
+            // so it must be filled in from the bootstrap
+
             if (queries.platform) {
+                    console.log("[http]  [queries]  - have queries.platform, it is:" + queries.platform);
+                    // if it is telling us a platform, which happsn  when we request /api/results/, then go get them. 
                 json = json[queries.platform];
                 if (!json) {
                     not_found(res, 'platform "' + queries.platform + '" not found.');
@@ -52,18 +66,24 @@ function routeApi(resource) {
                 }
             }
             if (queries.sha) {
+                console.log("[http]  [queries]  - have queries.sha, it is:" + queries.sha);
                 json = json[queries.sha];
                 if (!json) {
                     not_found(res, 'sha "' + queries.sha + '" on platform "' + queries.platform + '" not found.');
                     return;
                 }
             }
+
+            console.log("[Dashboard] - done with routeAPI, sending JSON back.");// + JSON.stringify(json));
+            console.log("");
+
             res.writeHead(200, {
                 "Content-Type":"application/json"
             });
             res.write(JSON.stringify(json), 'utf-8');
             res.end();
         } catch(e) {
+            console.log("[dashboard] [error] - an error occured in routeAPI:" + e);
             res.writeHead(500, {
                 "Content-Type":"application/json"
             });
@@ -93,6 +113,8 @@ var routes = {
 
 // cache local static content in memory (in memory? k)
 ['js', 'img', 'css'].forEach(function(media) {
+    // not really sure what this fnction is doing; just adding a bunch of routes like
+    // routes['js/'{}]. 
     var dir = path.join(__dirname, 'src', 'dashboard', 'templates', media);
     fs.readdirSync(dir).forEach(function(m) {
         var file_path = path.join(dir, m);
@@ -115,6 +137,7 @@ http.createServer(function (req, res) {
     if (route[route.length-1] == '/') route = route.substr(0, route.length-1);
 
     if (method == 'get' && route in routes) {
+        // nice. never seen it done liek this before, easy and simple
         routes[route](req,res);
     } else {
         res.writeHead(404);
@@ -126,11 +149,13 @@ http.createServer(function (req, res) {
 setTimeout(function() {
     console.log('[BOOT] Cloning necessary git repos (bootstrap).');
     new bootstrap().go(function() {
-        console.log('[BOOT] Retrieving results from couch...');
+        console.log("[BOOT - callback] - now the callback to bootstrap.go(), from dashboard");
+        console.log('[BOOT] Retrieving results from couch...   eg, apit.boot()');
         api.boot(function() {
             var boot_end = new Date().getTime();
             var diff = (boot_end - boot_start)/1000;
             console.log('[BOOT] Finished in ' + diff + ' seconds. READY TO ROCK!');
         });
     });
+
 }, 3000);

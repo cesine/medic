@@ -85,6 +85,7 @@ limitations under the License.
 
         reportSpecResults: function (spec) {
             // Finish timing this spec and calculate duration/delta (in sec)
+            console.log("[JASMINE-JSREPORTER] - reporting failures? ")
             spec.finishedAt = new Date();
             spec.durationSec = elapsedSec(spec.startedAt.getTime(), spec.finishedAt.getTime());
             jasmine.runnerResults.durationSec += spec.durationSec;
@@ -110,6 +111,7 @@ limitations under the License.
         },
 
         reportRunnerResults: function (runner) {
+            console.log("[JASMINE_REPORTER]  reportRunnerResults!!");
             var p = device.platform.toLowerCase();
 
             this.postTests({
@@ -122,7 +124,7 @@ limitations under the License.
             });
         },
         postTests: function(json) {
-            console.log('posting tests');
+            console.log('[JASMINE RUNNER]  posting tests');
             var xhr = new XMLHttpRequest();
             var doc_id = [json.platform, library_sha, json.version, json.model].map(encodeURIComponent).join('__');
             // TODO: expose the db in this url for customization

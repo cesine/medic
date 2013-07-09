@@ -35,7 +35,11 @@ module.exports = function(output_location, sha, devices, entry_point, callback) 
             callback(true);
         } else {
             // copy relevant bits of mobile-spec project to output_location location
-            shell.cp('-Rf', [path.join(libraries.paths.test, 'autotest'), path.join(libraries.paths.test, 'cordova.js'), path.join(libraries.paths.test, 'master.css'), path.join(libraries.paths.test, 'main.js')], output_location);
+// do i have to change this part, instead of cordova.js to cordova-inc.js??????
+console.log("[BUILDER] - copying relevant parts of mob-spec to output location, which is: " + output_location);
+console.log("yo, changed it to copy cordova-incl.js");
+
+            shell.cp('-Rf', [path.join(libraries.paths.test, 'autotest'), path.join(libraries.paths.test, 'cordova-incl.js'), path.join(libraries.paths.test, 'master.css'), path.join(libraries.paths.test, 'main.js')], output_location);
 
             // copy jasmine reporter into output_location location
             shell.cp('-Rf', jasmineReporter, output_location);
@@ -45,6 +49,7 @@ module.exports = function(output_location, sha, devices, entry_point, callback) 
             fs.writeFileSync(tempJasmine, "var mobile_spec_sha = '" + sha + "';\n" + fs.readFileSync(tempJasmine, 'utf-8'), 'utf-8');
 
             // replace a few lines under the "all" tests autopage
+            console.log("BUILDER _ MOBSPEC - tempall: " + tempAll + " and temp jasmine: " + tempJasmine);
             fs.writeFileSync(tempAll, fs.readFileSync(tempAll, 'utf-8').replace(/<script type=.text.javascript. src=.\.\..html.TrivialReporter\.js.><.script>/, '<script type="text/javascript" src="../html/TrivialReporter.js"></script><script type="text/javascript" src="../../jasmine-jsreporter.js"></script>'), 'utf-8');
             fs.writeFileSync(tempAll, fs.readFileSync(tempAll, 'utf-8').replace(/jasmine.HtmlReporter.../, 'jasmine.HtmlReporter(); var jr = new jasmine.JSReporter("' + config.couchdb.host + '");'), 'utf-8');
             fs.writeFileSync(tempAll, fs.readFileSync(tempAll, 'utf-8').replace(/addReporter.htmlReporter../, 'addReporter(htmlReporter);jasmineEnv.addReporter(jr);'), 'utf-8');

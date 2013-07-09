@@ -6,6 +6,7 @@ libraries.forEach(function(lib) {
     };
 });
 function createMaster(platform, data, shas, results) {
+    console.log('[masterdetail]  - createMaster');
     var container = $(platform + '_popup_html');
     var master_container = document.createElement('div');
     master_container.setAttribute('id', 'master-' + platform);
@@ -235,11 +236,13 @@ function render(lib) {
     var platform = lib.substr(8);
     var data = [];
     var shas = {};
+    console.log("[masterdetail] - tested_commits[" + lib + "].length is:" + tested_commits[lib].shas.length);
     for (var i = tested_commits[lib].shas.length-1; i >= 0; i--) {
        var sha = tested_commits[lib].shas[i];
        var stamp = parseInt(tested_commits[lib].dates[i],10) * 1000;
        shas[stamp] = sha;
        var rs = results[platform][sha];
+       // results is null for some reason
        var num_devices = 0;
        for (var version in rs) if (rs.hasOwnProperty(version)) {
            var models = rs[version];

@@ -58,12 +58,14 @@ module.exports = function(output, sha, devices, entry_point, callback) {
                         
                         // add the sha to the junit reporter
                         var tempJasmine = path.join(output, 'assets', 'www', 'jasmine-jsreporter.js');
+                        console.log("[MIKE-android.js] - ad sha to junit reporter: var is:" + tempJasmine);
+
                         if (fs.existsSync(tempJasmine)) {
                             fs.writeFileSync(tempJasmine, "var library_sha = '" + sha + "';\n" + fs.readFileSync(tempJasmine, 'utf-8'), 'utf-8');
                         }
 
                         // modify start page
-                        // 1. old cordova-android: modify the .java file
+                        // 1. old cordova-android: modify the .j/Users/sesadmin/medic/medic/src/build/makers/android.jsava file
                         var javaFile = path.join(output, 'src', 'org', 'apache', 'cordova', 'example', 'cordovaExample.java'); 
                         fs.writeFileSync(javaFile, fs.readFileSync(javaFile, 'utf-8').replace(/www\/index\.html/, 'www/' + entry_point), 'utf-8');
                         // 2. new cordova-android: modify the config.xml
@@ -72,7 +74,10 @@ module.exports = function(output, sha, devices, entry_point, callback) {
                         
                         // look at which cordova-<v>.js current lib uses
                         var final_cordovajs = path.join(output, 'assets', 'www', 'cordova.js');
-                        var lib_cordovajs = path.join(android_lib, 'framework', 'assets', 'js', 'cordova.android.js');
+                        // var lib_cordovajs = path.join(android_lib, 'framework', 'assets', 'js', 'cordova.android.js');
+
+var lib_cordovajs = path.join(android_lib, 'framework', 'assets','www', 'cordova.js');
+
                         fs.writeFileSync(final_cordovajs, fs.readFileSync(lib_cordovajs, 'utf-8'), 'utf-8');
                     } catch (e) {
                         error_writer('android', sha, 'Exception thrown modifying Android mobile spec application.', e.message);
@@ -102,6 +107,8 @@ module.exports = function(output, sha, devices, entry_point, callback) {
                                         log(error_message);
                                         callback(true);
                                     } else {
+                                        log('[MIKE] - got a device, everythign is ready, deployign!');
+                                        log(callback);
                                         deploy(sha, devices, binary_path, package, callback);
                                     }
                                 });

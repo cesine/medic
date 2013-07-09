@@ -43,16 +43,21 @@ module.exports = function(commits, callback) {
 
     var number_of_updates = 0;
     iterate(commits, function(lib) { number_of_updates++; });
+    console.log("[updater.js - ]  number of updates to make:" + number_of_updates);
+    
     var end = n(number_of_updates, function() {
         console.log('[UPDATER] Finished updating ' + number_of_updates + ' repos.');
         callback();
     });
 
     iterate(commits, function(lib) {
+        // for as many commits as we have, run some git checkout command that i dont really undesrtand :/
+
         console.log('[UPDATER] Grabbing latest for ' + lib);
         
         // shell out to git
         var libPath = path.join(libDir, lib);
+        //here i think is where we also need to delete everythign again and pull it back down, or figure out why we have to keep fixing some merge error
         shell.exec('cd ' + libPath + ' && git checkout -- . && git pull --tags origin master', {silent:true, async:true}, function(res) {
             if (res.code > 0) throw new Error('Failed git-pull\'ing ' + libPath + '!\n' + res.output); 
             else end();

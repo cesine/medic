@@ -64,6 +64,9 @@ limitations under the License.
 
     var JSReporter =  function (server) {
         this.server = server;
+        console.log("[MIKE] - [JSReporter] - constructing JSReporter");
+        //alert("making jasmine!");   // this gets alerted when it starts up!
+
     };
 
     JSReporter.prototype = {
@@ -110,6 +113,8 @@ limitations under the License.
         },
 
         reportRunnerResults: function (runner) {
+            console.log("MIKE - JASMINE - reportRunnerResults");
+            //alert("posting results!!!");
             var p = device.platform.toLowerCase();
 
             this.postTests({
@@ -122,10 +127,24 @@ limitations under the License.
             });
         },
         postTests: function(json) {
-            console.log('posting tests');
+            console.log('[MIKE -- JASMINE] posting tests'); // outputs this too!
             var xhr = new XMLHttpRequest();
             var doc_id = [json.platform, library_sha, json.version, json.model].map(encodeURIComponent).join('__');
             var doc_url = this.server + '/mobilespec_results/' + doc_id;
+
+            var blackberry={};  // just avoid the undefined errors in the log
+
+//console.log("maybe we shoudl be sending this:" + [json.platform, library_sha, json.version, json.model]);
+//var maybe = [{"platform": "json.platform", "sha": "library_sha", "version" : "json.version", "model":"json.model"}];
+//console.log("or even this:" + JSON.stringify(maybe));
+           console.log("\n\n\n [mike -- JASMINE]   posting results, via PUT, doc_url is:" + doc_url);
+//http://127.0.0.1:5984/mobilespec_results/android__5cff144a22cbd840691301d5b78ba75bc365d764__4.2.2__Nexus%207
+// so it never puts anything here...
+//console.log("the json that we \n want to send :");
+//console.log(JSON.stringify(json));
+
+
+
             xhr.open("PUT", doc_url, true);
             xhr.onreadystatechange=function() {
                 console.log('onreadystatechange');
@@ -180,7 +199,9 @@ limitations under the License.
                         exehar.send(null);
                     } else {
                         console.log('some crazy shit happened. couch returned some balltastic info. status code: ' + xhr.status);
-                        console.log(xhr.responseText);
+                        //console.log(xhr);
+                        //console.log(JSON.stringify(xhr));
+                        console.log(xhr.responseText);  // saying this shit is null
                         console.log('>>> DONE <<<');
                         if (blackberry && blackberry.app && blackberry.app.exit) blackberry.app.exit();
                     }
