@@ -44,8 +44,9 @@ function run_through(sha, devices, bundlePath, bundleId, callback) {
     var d = devices.shift();
     if (d) {
         log('Uninstalling app on ' + d);
-        var cmd = listdevices + ' uninstall --id=' + d + ' --bundle-id=org.apache.cordova.example';
-        shell.exec(cmd, {silent:true,async:true}, function(code, output) {
+        // opened up the project in xcode, bundle is; org.apache.mobilespec
+        var cmd = listdevices + ' uninstall --id=' + d + ' --bundle-id=org.apache.mobilespec';  // shoudl be using the bundleid var right?....
+        shell.exec(cmd, {silent:false,async:true}, function(code, output) {
             if (code > 0) log('Uninstall on ' + d + ' failed, continuing anyways.');
 
             log('Install + deploy on ' + d);
@@ -75,6 +76,8 @@ function run_through(sha, devices, bundlePath, bundleId, callback) {
                     run_through(sha, devices, bundlePath, bundleId, callback);
                 }
             });
+
+            log("--------- Done with IOS! ---------");
         });
     } else {
         callback();

@@ -23,8 +23,8 @@ var path             = require('path'),
 
 var builders = {
     'cordova-android':android_build,
-    'cordova-ios':ios_build,
-    'cordova-blackberry':blackberry_build
+    'cordova-ios':ios_build
+    //'cordova-blackberry':blackberry_build
 };
 
 function build_the_queue(q, callback) {
@@ -38,6 +38,10 @@ function build_the_queue(q, callback) {
 }
 
 module.exports = function(app_builder, app_entry_point, static) {
+    
+    // think this is the builder for just the test ap
+    // we don't care or want this yet snce we do the test app build via createmobilespec.sh
+    /*
     builders['test'] = require(path.join('..','..',app_builder));
     if (static) {
         builders['test'](libraries.output.test, static, null, null, app_entry_point, function(err) {
@@ -54,6 +58,7 @@ module.exports = function(app_builder, app_entry_point, static) {
             console.log('[MEDIC] Test app built + ready.');
         });
     }
+    */
 
     return function builder(commits, callback) {
         // commits format:

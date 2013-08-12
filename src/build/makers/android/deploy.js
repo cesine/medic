@@ -16,9 +16,15 @@ limitations under the License.
 */
 var n     = require('ncallbacks'),
     shell = require('shelljs'),
-    cp    = require('child_process');
+    cp    = require('child_process'),
+    nodepath  = require('path'),
+    config = require('../../../../config');
+
+var githubPath=config.githubPath;
 
 module.exports = function deploy(sha, devices, path, id, callback) {
+    // "id" is the package
+
     function log(msg) {
         console.log('[ANDROID] [DEPLOY] ' + msg + ' (' + sha.substr(0,7) + ')');
     }
@@ -26,6 +32,8 @@ module.exports = function deploy(sha, devices, path, id, callback) {
         log('No Android devices connected. Aborting.');
         callback();
     }
+    log("githubPath is:" + githubPath);
+
     var count = 0;
     if (devices === undefined || !devices) done();
     else {
@@ -41,14 +49,21 @@ module.exports = function deploy(sha, devices, path, id, callback) {
                     // NOTE: if uninstall failed with code > 0, keep going.
                     log('Installing on device ' + d);
                     cmd = 'adb -s ' + d + ' install -r ' + path;
-                    var install = shell.exec(cmd, {silent:true,async:true},function(code, install_output) {
+                    var install = shell.exec(cmd, {silent:false,async:true},function(code, install_output) {
                         if (code > 0) {
                             log('Error installing on device ' + d);
+                            log(install_output);
                             end();
                         } else {
                             log('Running on device ' + d);
-                            cmd = 'adb -s ' + d + ' shell am start -n ' + id + '/' + id + '.cordovaExample';
-                            var deploy = shell.exec(cmd, {silent:true,async:true},function(code, run_output) {
+                            cmd = 'adb -s ' + d + ' shell am start -n ' + id + '/' + id + '.mobilespec'; // this needs to be the ActivityName
+                            // liek this: adb shell am start -n com.package.name/com.package.name.ActivityName
+                            // src has : org/apache/mobilespec/mobilespec.java
+                            // AndroidManifest has 'mobilespec' as activity name
+                            // typein ghtis worked:   adb shell am start -n org.apache.mobilespec/org.apache.mobilespec.mobielspec
+                            log("command is:" + cmd);
+                            
+                            var deploy = shell.exec(cmd, {silent:false,async:true},function(code, run_output) {
                                 if (code > 0) {
                                     log('Error launching mobile-spec on device ' + d + ', continuing.');
                                     end();
@@ -75,6 +90,22 @@ module.exports = function deploy(sha, devices, path, id, callback) {
                                             log('Mobile-spec finished on ' + d);
                                             clearTimeout(timer);
                                             logcat.kill();
+
+
+                                            // We shoudl rm -rf 'mobilespec' folder, since the createmobilespech.sh file won't run if it exists...
+                                           /*
+                                            log("Want to remove mobilespec dir");
+                                            var remove = 'rm -rf ' + nodepath.join(githubPath,"mobilespec");
+                                            log("remove cmd is:" + remove);
+                                            shell.exec(remove, {silent:false},function(code, removeerror){
+                                               if (code > 0) {
+                                                    log('Error removing mobile spec dir ' +  removeerror);
+                                                    callback(true);
+                                                } else {
+                                                    log("Successfully removed mobile spec dir");
+                                                }
+                                            });
+                                            */
                                             end();
                                         }
                                     });

@@ -85,7 +85,7 @@ limitations under the License.
 
         reportSpecResults: function (spec) {
             // Finish timing this spec and calculate duration/delta (in sec)
-            console.log("[JASMINE-JSREPORTER] - reporting failures? ")
+            console.log("[JASMINE-JSREPORTER] - reporting failures? ");
             spec.finishedAt = new Date();
             spec.durationSec = elapsedSec(spec.startedAt.getTime(), spec.finishedAt.getTime());
             jasmine.runnerResults.durationSec += spec.durationSec;
@@ -128,8 +128,10 @@ limitations under the License.
             var xhr = new XMLHttpRequest();
             var doc_id = [json.platform, library_sha, json.version, json.model].map(encodeURIComponent).join('__');
             // TODO: expose the db in this url for customization
-            var doc_url = this.server + '/mytestdb/' + doc_id;
+            var doc_url = this.server + '/mobilespec_results/' + doc_id;
+            // why is the db called 'mytestdb', it should probably be mobilespec_results
             xhr.open("PUT", doc_url, true);
+            //alert("docURL is:" + doc_url);
             xhr.onreadystatechange=function() {
                 console.log('onreadystatechange');
                 if (xhr.readyState==4) {

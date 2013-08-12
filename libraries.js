@@ -25,10 +25,11 @@ module.exports = {
         'test':path.join(__dirname, 'lib', 'test')
     },
     output:{
-        'cordova-android':path.join(__dirname, 'temp', 'android'),
-        'cordova-ios':path.join(__dirname, 'temp', 'ios'),
-        'cordova-blackberry':path.join(__dirname, 'temp', 'blackberry'),
-        'test':path.join(__dirname, 'temp', 'test')
+        //'cordova-android':path.join(__dirname, 'temp', 'android'),
+        'cordova-android':path.join(__dirname,'github','mobilespec','platforms','android'),
+        'cordova-ios':path.join(__dirname, 'github','mobilespec','platforms','ios'),
+        'cordova-blackberry':path.join(__dirname, 'temp', 'blackberry')//,
+        // we don't wanna make you! test':path.join(__dirname, 'temp', 'test')
     },
     first_tested_commit:{
         'cordova-android':'538e90f23aaeebe4cc08ad87d17d0ab2dde6185d', //what are these? the ones that he did first? shoudl these be hardcoded?
