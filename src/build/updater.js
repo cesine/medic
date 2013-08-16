@@ -20,7 +20,7 @@ var shell       = require('shelljs'),
     commit_list = require('./commit_list'),
     couch       = require('../couchdb/interface');
 
-var libDir = path.join(__dirname, '..', '..', 'lib');
+var libDir = path.join(__dirname, '..', '..', 'github');    // changed this from 'lib', haven't seen it in actiaion really
 
 function iterate(obj, cb) {
     for (var p in obj) if (obj.hasOwnProperty(p)) {

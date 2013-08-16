@@ -19,7 +19,12 @@ var events    = require('events'),
     builder,
     libraries = require('../../libraries');
 
+function log(msg){
+    console.log("[QUEUE]  " + msg);
+}
+
 var q = function(name) {
+    log("buildling new 'q': " + name);
     this.q = [];
     this.building = false;
     this.name = name;
@@ -58,13 +63,20 @@ q.prototype.build = function() {
         //     'devices':['id1','id2']
         //   }
         // }
-        updater(job, function() {
+
+        // if this.name === "MobileSpec" // skip updater and just run the build script
+        if( this.name === 'MobileSpec'){
+            log("Hijack and run the mobilespec builder");
+        }
+
+        // dont think we need to bother with the updater
+        //updater(job, function() {
             builder(job, function() {
                 console.log('[BUILDER] [' + self.name + '] Job complete. (' + self.q.length + ' jobs remaining in queue)');
                 self.building = false;
                 self.build();
             });
-        });
+        //});
     } else {
         this.building = false;
         console.log('[BUILDER] [' + this.name + '] Job queue emptied. Illin\' chillin\'.');
@@ -76,18 +88,35 @@ var platform_queue = {};
 for (var lib in libraries.paths) if (libraries.paths.hasOwnProperty(lib)) {
     platform_queue[lib] = new q(lib);
 }
-platform_queue['test'] = new q('Test App');
 
-function queue(app_builder, app_entry_point, static) {
-    builder = require('./builder')(app_builder, app_entry_point, static);       // think this might be our error
+//platform_queue['test'] = new q('Test App');
+// change this to 'mobile spec', 
+log("Manually creating mobile spec platform queue");
+platform_queue['mobilespec'] = new q('mobilespec'); // do we need this? 
+
+
+function queue(app_builder, app_entry_point, static, cb) {
+  //  log("new queue, app builder:" + app_builder + "    entry point:" + app_entry_point + "       static:" + static  + "      cb:" + cb);
+    if( app_builder && app_entry_point && static){
+        builder = require('./builder')(app_builder, app_entry_point, static, cb);       // think this might be our error
+    }else{
+        log("Skipping because undefined builder/entrypoint/static");
+    }
 }
 
 queue.prototype = {
     push:function(job) {
+        log("Pushing new job:" + JSON.stringify(job));
+        log("Current platform_queue:" + JSON.stringify(platform_queue));
+
         var lib = null;
         for (var p in job) if (job.hasOwnProperty(p)) lib = p;
+        log("Detected lib:" + lib);
         if (lib && lib in platform_queue) {
+            log("Adding this job to platform queue");
             platform_queue[lib].push(job);
+        }else{
+            log("Can't add this job to platform queue");
         }
     }
 };

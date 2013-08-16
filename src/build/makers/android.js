@@ -43,6 +43,8 @@ module.exports = function(output, sha, devices, entry_point, callback) {
     // update the needed repos; we don't ever update coho, so this is somethign we'll have to rememer to do or add in later
     // also we are just running the repo-update, so the first time will need to manually run repo-clone or check to see if its here
     //      remember to run npm install if you do the full repo-clone!
+   
+   /*
     shell.exec(path.join(githubPath,"cordova-coho","coho") + ' repo-update -r auto', {silent:false, async:true}, function(code, checkout_output) {
         if (code > 0) {
             error_writer('android', 'error running coho repo-update!', checkout_output);
@@ -138,19 +140,21 @@ module.exports = function(output, sha, devices, entry_point, callback) {
                         var lib_cordovajs = path.join(android_lib, 'framework', 'assets','www', 'cordova.js');
 
                         fs.writeFileSync(final_cordovajs, fs.readFileSync(lib_cordovajs, 'utf-8'), 'utf-8');
-                        */
+                        
                     } catch (e) {
                         log('Exception thrown modifying Android mobile spec application.' + e.message);
 
                         callback(true);
                         return;
                     }
-
+*/
                     
                     // compile
                     log('Compiling.');
+                    var output = libraries.output["cordova-android"];
+                    
                     var ant = 'cd ' + output + ' && ant clean && ant debug';
-                    shell.exec(ant, {silent:true,async:true},function(code, compile_output) {
+                    shell.exec(ant, {silent:false,async:true},function(code, compile_output) {
                         if (code > 0) {
                             log('Compilation error: ' +  compile_output);
                             callback(true);
@@ -180,9 +184,11 @@ module.exports = function(output, sha, devices, entry_point, callback) {
                             }
                         }
                     });
+/*
                     
                 }
             });
         }
     });
+*/
 }

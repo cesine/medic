@@ -26,9 +26,17 @@ var path          = require('path'),
     argv          = require('optimist').argv,
     commit_list   = require('./src/build/commit_list'),
     updater       = require('./src/build/updater'),
-    q             = require('./src/build/queue');
+    q             = require('./src/build/queue'),
+    mobSpecBuilder = require('./src/build/makers/mobspecbuilder');
 
 // Clean out temp directory, where we keep our generated apps
+
+console.log("");
+console.log("");
+console.log("");
+console.log("");
+console.log("Beginning new fresh run");
+
 var temp = path.join(__dirname, 'temp');
 shell.rm('-rf', temp);
 shell.mkdir(temp);
@@ -96,21 +104,59 @@ if (typeof platforms == 'string') {
     });
 }
 // determine which platforms we listen to apache cordova commits to
+// we need to change this from the libraries.list to libraris.platformswecareabout
+
 var head_platforms = platforms.filter(function(p) {
     return p.indexOf('@') == -1;
 }).map(function(p) { return 'cordova-' + p; });     // adds "cordova-" 
-// determine which platforms are frozen to a tag
-var frozen_platforms = platforms.filter(function(p) {
-    return p.indexOf('@') > -1;
-});
 
+for(p in libraries.repos_we_care_about){
+    if(head_platforms.indexOf(p) == -1){
+        head_platforms.push(p);     // I'm sure there is a better way to do this.
+    }
+}
+
+// don't care about this
+// determine which platforms are frozen to a tag
+/*var frozen_platforms = platforms.filter(function(p) {
+    return p.indexOf('@') > -1;
+});*/
+
+
+function getSHA(library){
+    // name should be something like "cordova-xxx"
+    var shaRegExp = /^[0-9]*\s+([a-z0-9]+)/;
+    var commitList = shell.exec('cd ' + path.join(githubPath,library) + ' && git rev-list --all --pretty=oneline --timestamp --max-count=1', {silent:true});
+
+    if (commitList.code > 0) throw ('Failed to get commit list for ' + library + ' library.');
+    var commitArr = commitList.output.split('\n');
+    commitArr = commitArr.slice(0, commitArr.length - 1);
+    var shaList = commitArr.map(function(c) {
+        var res = shaRegExp.exec(c);
+        if (res) return res[1];
+    });
+    shaList = shaList+"";   //type coercion so we can substr and get the shortened SHA
+    return shaList;
+}
+
+function getUniqueSHAKey(){
+    // Creates a unique key to store results in teh db
+    // it is the tiny SHA of every platform
+    // later used with device info to generate a unique key
+    var key = "";
+    for(i in libraries.repos_we_care_about){
+        key+= library +"_"+ substr(getSHA(i),6) + "_";
+    }
+    return key;
+}
+
+console.log("[build] - head_platforms:" + head_platforms);
 // bootstrap makes sure we have the libraries cloned down locally and can query them for commit SHAs and dates
 new bootstrap(/*app_git*/null, /*app_builder*/ null).go(function() {            
 // Since we will clone all libraries with coho, don't bother giving it app_git
 // The default app_builder is this: src/build/makers/mobile_spec   but we dont' really need a maker for mobile_spec if we use the script
 
     // removing this part - we will start with the libraries cloned down and update them with coho and createmobilespec.sh
-//queue = new q();
 
     /*
     if (!static && !remote_app) { 
@@ -122,15 +168,39 @@ new bootstrap(/*app_git*/null, /*app_builder*/ null).go(function() {
     }
     */
     //queue = new q('./src/build/makers/static', app_entry_point, (remote_app ? app_entry_point : static));
-queue = new q('./src/build/makers/android',app_entry_point,false);
+
+//queue = new q('./src/build/makers/android',app_entry_oint,false);
+
+//queue = new q('./src/build/makers/mobspecbuilder',app_entry_point,false);
+
+ /*mobSpecBuilder(app_entry_point, function(){
+                    console.log("[build][mobspecbuilder] - done calling mobSpecBuilder!")
+                });*/
+
+//queue = new q();//null,null,null);
+//  what the hell is static?
+//queue = new q('./src/build/makers/mobilespecbuilder', app_entry_point, null); // static is reserved in strict mode
+
     //queue.push( new q('./src/build/makers/ios',app_entry_point,false));
    
-   /*     var job = {};
-                job['ios'] = {
+   //queue = new q();
+
+    queue = new q('./src/build/makers/mobilespecbuilder', app_entry_point, true, function(){
+        console.log("-------------------- so ugly -----------");
+        queueItAll();
+    });
+   //queue = new q("mobilespec");
+   
+   // we don't want to do this until mobilespecbuilder is built... for some reason it doesn't wait.
+   /*
+   var job = {};
+                job['cordova-ios'] = {  // because in queue, the libs are cordova-*
                     "sha":"HEAD"
                 }
     queue.push(job);
-    c
+    */
+   // queueItAll();
+    
 
     // Don't think this really works any more; how would you describe a test? {library SHA}{mobile spec sha}[{plugin SHA}....{plugin SHA}] ?
     // Since it is CI, just always listen for latest commits and do those
@@ -172,36 +242,90 @@ queue = new q('./src/build/makers/android',app_entry_point,false);
         if (head_platforms.length > 0) { 
             var apache_url = "http://urd.zones.apache.org:2069/json";
             var gitpubsub = request.get(apache_url);
-            console.log("[build] - Starting gitpubsub pipe");
+
+            // these are all....null
+            //console.log("[build] - Starting gitpubsub pipe:" + project + "," + sha + "," + ref);
+
+            console.log("[MEDIC] - starting gitpubsub pipe");
             gitpubsub.pipe(new apache_parser(function(project, sha, ref) {
                 // only queue for platforms that we want to build with latest libs
                 // and only queue for commits to master branch
+
+                // problem here is that this gets called from the gitpubsub, once an interesting commit comes in
+                // but we are getting commits from a lot of different projects: cordova-plugins-*, cordova-{core}, etc
+                // but if you look in this code, mostly check_n_queue, we are creating the key from the ios/android commit
+                // so we need to make a better/different key using the sha's of every project?
+                console.log("Starting pipe for:" + project + ", " + sha + ", " + ref);
+
+                // right here, the projct is things liek cordova-blackberry, or cordova-plugin-geolocation
+
+
                 if (head_platforms.indexOf(project) > -1 && ref == 'refs/heads/master') {
                     // update the local repo
                     var job = {};
                     job[project] = sha;
-                    updater(job, function() {
+                    console.log("[MEDIC], launching updater for job:" + JSON.stringify(job));
+
+                  
+                    //updater(job, function() { // dont thinkw e ened to run the updater
+
                         // handle commit bunches
                         // number of most recent commits including newest one to check for queueing results.
                         // since you can commit multiple times locally and push multiple commits up to repo, this ensures we have decent continuity of results
                         var num_commits_back_to_check = config.numberOfCommits; // Mike added
                         var commits = commit_list.recent(project, num_commits_back_to_check).shas;
+
+                        /// since this is the callback that gets fired when a new interesting commit comes in
+                        // we need to scheule a mobspecbuilder job
+
+                        var job = {};
+                        job['mobilespec'] = {  // because in queue, the libs are cordova-*
+                            "sha":"HEAD"
+                        }
+                        queue.push(job);
+
+                        // We almost don't need this if statement ever....the callback shoudl just be create this mobilespec job, and
+                        // give it a callback to 1, create the unique SHA, and 2, check_n_queue
+
                         check_n_queue(project, commits); 
-                    });
+                    //});
+                }else{
+
+                    console.log("nothign happened");
                 }
             }));
             console.log('[MEDIC] Now listening to Apache git commits from ' + apache_url);
+        }
+
+/*
+            var project = "cordova-android";
+            var commits = commit_list.recent(project, config.numberOfCommits).shas;
+            console.log("[commits are:" + JSON.stringify(commits));
+
+
+            console.log('[BUILD] - Now calling mobspec builder');
+
+            //console.log("[build][medic][new] is this sha the head of something?:" + sha);
+                mobSpecBuilder(app_entry_point, function(){
+                    console.log("[build][mobspecbuilder] - done calling mobSpecBuilder!")
+                });
+*/
 
             // queue up builds for any missing recent results for HEAD platforms too
-            console.log('[build]  head_platforms is: ' + JSON.stringify(head_platforms));
+            //onsole.log('[build]  head_platforms is: ' + JSON.stringify(head_platforms));
+            // think this needs to be in a callback for the mobilespec builer 
+
+/*
             head_platforms.forEach(function(platform) {
                 if (should_build[platform]) {
                     var commits = commit_list.recent(platform, config.numberOfCommits).shas;    // mike added
-                    console.log("[build] - check_n_queue for commits on head_platforms, commits arrray: " + commits);
+                   // console.log("[build] - check_n_queue for commits on head_platforms, commits arrray: " + commits);
                     check_n_queue(platform, commits);
                 }
             });
-        }
+            */
+            
+        
         /*
         // if app commit_hook exists, wire it up here
         if (app_commit_hook) {
@@ -232,13 +356,24 @@ queue = new q('./src/build/makers/android',app_entry_point,false);
 
     // }
 });
-
+function queueItAll(){
+    console.log("[MEDIC] - queueItAll");
+            head_platforms.forEach(function(platform) {
+                console.log("Checking:" + platform);
+                if (should_build[platform]) {
+                    console.log("Gettign commits from commit_list");
+                    var commits = commit_list.recent(platform, config.numberOfCommits).shas;    // mike added
+                   console.log("[build] - check_n_queue for commits on head_platforms, commits arrray: " + commits);
+                    check_n_queue(platform, commits);
+                }
+            });
+}
 // Given a repository and array of commits for that repository, 
 function check_n_queue(repo, commits) {
     console.log('[MEDIC] Checking ' + repo + '\'s ' + commits.length + ' most recent commit(s) for results on your couch...');
     var platform = repo.substr(repo.indexOf('-')+1);
     // TODO: figure out ios device scanning. issue: determine what model and version connected ios devices are running. until then, we can't queue ios builds on devices that we are missing results for, so we look at ios commits with no results and queue those up.
-    console.log("[Medic] - platform is:" + platform);   
+
     if (repo == 'cordova-ios') {
         // look at latest commits and see which ones have no results
         console.log("Repo is: ios!");
@@ -247,7 +382,7 @@ function check_n_queue(repo, commits) {
                 if (error) {
                     console.error('[COUCH] Failed to retrieve iOS results for sha ' + commit.substr(0,7) + ', continuing.');
                 } else {
-                    console.log("[build] - adding new job to ios queue, commit is:" + commit);
+                    console.log("[BUILD] - adding new job to ios queue, commit is:" + commit);
                     if (result.rows.length === 0) {
                         // no results, queue the job!
                         var job = {
@@ -271,7 +406,7 @@ function check_n_queue(repo, commits) {
                 var numDs = 0;
                 for (var d in devices) if (devices.hasOwnProperty(d)) numDs++;
                 if (numDs > 0) {
-                    console.log("[MIKE] - build.js - creating jobs for these commits");
+                    //console.log("[BUILD] - build.js - creating jobs for these commits");
 
                     commits.forEach(function(commit) {
                         var job = {};
@@ -282,7 +417,7 @@ function check_n_queue(repo, commits) {
                             devices:{}
                         };
                         var end = n(numDs, function() {
-                                console.log("[MIKE-BUILD] - end(), so ading this job to the queue")
+                                //console.log("[MIKE-BUILD] - end(), so ading this job to the queue")
                             if (targets > 0) {
                                 job[repo].numDevices = targets;
                                 queue.push(job);
@@ -296,7 +431,7 @@ function check_n_queue(repo, commits) {
                             couch.mobilespec_results.get(couch_id, function(err, res_doc) {
                                 if (err && res_doc == 404) {
                                     // Don't have results for this device!
-                                    console.log("[MIKE - ERROR] error, dont have results for thsi device")
+                                    // Create this job!
                                     targets++;
                                     job[repo].devices[id] = {
                                         version:version,
@@ -310,6 +445,23 @@ function check_n_queue(repo, commits) {
                 }
             }
         });
-    console.log("Done scanning for Android targets");
+    //console.log("Done scanning for Android targets");
     }
 };
+// module.exports = function(){
+//         console.log("0------------------ calling queueitall");
+//     queueItAll();
+// }
+
+//module.exports = {"queue":queueItAll};
+
+
+
+
+
+
+
+
+
+
+

@@ -19,7 +19,9 @@ var path             = require('path'),
     libraries        = require('../../libraries'),
     android_build    = require('./makers/android'),
     ios_build        = require('./makers/ios'),
-    blackberry_build = require('./makers/blackberry');
+    blackberry_build = require('./makers/blackberry'),
+    mobilespec_build = require('./makers/mobspecbuilder'),
+    mainbuilder          = require('../../build');
 
 var builders = {
     'cordova-android':android_build,
@@ -37,28 +39,38 @@ function build_the_queue(q, callback) {
     } else callback();
 }
 
-module.exports = function(app_builder, app_entry_point, static) {
+function log(msg){
+    console.log("[BUILDER]  " + msg);
+}
+
+module.exports = function(app_builder, app_entry_point, static, mikecb) {
     
     // think this is the builder for just the test ap
     // we don't care or want this yet snce we do the test app build via createmobilespec.sh
-    /*
-    builders['test'] = require(path.join('..','..',app_builder));
+    
+    builders['mobilespec'] = mobilespec_build;
     if (static) {
-        builders['test'](libraries.output.test, static, null, null, app_entry_point, function(err) {
+        log("Buildling mobile spec, static");
+        builders['mobilespec'](app_entry_point, function(err) {
             if (err) {
+                log("Error, could not build mobile spec:");
                 throw new Error('Could not copy test app over!');
             }
             console.log('[MEDIC] Test app built + ready.');
+            mikecb();
+           // Lets try to queue up the build/deploy of the platforms
         });
+
     } else {
-        builders['test'](libraries.output.test, 'HEAD', null, app_entry_point, function(err) {
+        log("Building mobile spec, nonstatic...");
+        builders['mobilespec'](app_entry_point, function(err) {
             if (err) {
                 throw new Error('Could not build Test App! Aborting!');
             }
             console.log('[MEDIC] Test app built + ready.');
         });
     }
-    */
+    
 
     return function builder(commits, callback) {
         // commits format:

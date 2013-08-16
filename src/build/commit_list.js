@@ -19,11 +19,14 @@ var path = require('path'),
 
 var shaRegExp = /^[0-9]*\s+([a-z0-9]+)/;
 var timeRegExp = /^([0-9]+)\s/;
-var libDir = path.join(__dirname, '..', '..', 'lib');
+var libDir = path.join(__dirname, '..', '..', 'github');
 
 module.exports = {
     recent:function recent(lib, num_commits_to_show) {
+        //console.log("commit list");
         var libPath = path.join(libDir, lib);
+        console.log("libpath:" + libPath);
+
         var commitList = shell.exec('cd ' + libPath + ' && git rev-list --all --pretty=oneline --timestamp --max-count=' + num_commits_to_show, {silent:true});
         if (commitList.code > 0) throw ('Failed to get commit list for ' + lib + ' library.');
         var commitArr = commitList.output.split('\n');
